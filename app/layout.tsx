@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "루미: 끝없는 오르기",
+  title: "STARBOUND STEPS",
   description: "별빛 여행자 루미의 끝없는 계단 오르기",
 };
 

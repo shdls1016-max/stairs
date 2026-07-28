@@ -72,7 +72,9 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(component, /최고 기록 갱신!/);
   assert.match(component, /다시 도전/);
   assert.match(component, /홈으로/);
-  assert.doesNotMatch(component, /NEW RECORD|>Retry<|>Home<|>PLAY/);
+  assert.doesNotMatch(component, /NEW RECORD|>Retry<|>Home</);
+  assert.match(component, /aria-label="STARBOUND STEPS"/);
+  assert.match(component, /className="play-label">PLAY</);
   assert.match(layout, /viewportFit:\s*"cover"/);
   assert.match(layout, /userScalable:\s*false/);
   assert.doesNotMatch(component, /<canvas|<svg/i);
@@ -103,7 +105,7 @@ test("production worker renders the game document", async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /루미: 끝없는 오르기/);
+  assert.match(html, /STARBOUND STEPS/);
   assert.match(html, /screen-loading/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton/);
 });

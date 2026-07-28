@@ -285,25 +285,30 @@ function HomeScreen({
   return (
     <section className="home-screen" data-testid="screen-home">
       <WorldBackground floor={0} pulse={0} />
-      <IconButton label="설정 열기" icon="⚙" onClick={onSettings} className="home-settings" />
+      <IconButton label="설정 열기" icon="⚙︎" onClick={onSettings} className="home-settings" />
+      <div className="home-title">
+        <div className="game-logo" aria-label="STARBOUND STEPS">
+          <span className="logo-emblem" aria-hidden="true">★</span>
+          <span className="logo-topline">STARBOUND</span>
+          <strong>STEPS</strong>
+        </div>
+      </div>
       <div className="home-content">
         <div className="home-hero">
           <div className="hero-aura" />
           <img src={ASSETS.character.idle} alt="별빛 여행자 루미" />
         </div>
         <div className="home-actions">
-          <div className="game-logo" aria-label="루미 끝없는 오르기">
-            <span className="logo-kicker">별빛 여행자</span>
-            <strong>LUMI</strong>
-            <span className="logo-subtitle">끝없는 오르기</span>
-          </div>
           <div className="home-best">
-            <span>최고 높이</span>
-            <strong>{best.toLocaleString()}층</strong>
+            <span className="best-star" aria-hidden="true">★</span>
+            <span className="best-copy">
+              <small>최고 높이</small>
+              <strong>{best.toLocaleString()}층</strong>
+            </span>
           </div>
           <button className="primary-button play-button" type="button" onClick={onPlay}>
-            <span className="play-symbol" aria-hidden="true">▶</span>
-            게임 시작
+            <span className="play-symbol" aria-hidden="true" />
+            <span className="play-label">PLAY</span>
           </button>
           <p className="control-hint">
             화면 좌우 터치 · 키보드 ← →
