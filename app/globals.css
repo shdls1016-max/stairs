@@ -1538,7 +1538,7 @@ img {
 @media (max-width: 760px) {
   .home-title {
     top: calc(var(--safe-top) + 5px);
-    width: min(70vw, 390px);
+    width: min(62vw, 340px);
   }
 
   .game-logo {
@@ -1584,7 +1584,7 @@ img {
   }
 
   .game-logo strong {
-    font-size: clamp(46px, 16vw, 72px);
+    font-size: clamp(42px, 13.5vw, 66px);
   }
 
   .home-best {
@@ -1699,7 +1699,7 @@ img {
   }
 
   .game-logo strong {
-    font-size: clamp(43px, 15vw, 60px);
+    font-size: clamp(40px, 13vw, 52px);
   }
 
   .score-readout {
