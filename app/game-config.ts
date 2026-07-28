@@ -3,7 +3,7 @@ export const ASSETS = {
     idle: "/assets/characters/lumi/base/lumi-idle-base.png",
     climb: "/assets/characters/lumi/poses/lumi-climb-left-up-v2.png",
     turn: "/assets/characters/lumi/poses/lumi-direction-turn.png",
-    fail: "/assets/characters/lumi/poses/lumi-fail-misstep-v2.png",
+    fail: "/assets/characters/lumi/poses/lumi-fail-misstep.png",
     record: "/assets/characters/lumi/poses/lumi-new-record-celebration-v3.png",
   },
   backgrounds: [

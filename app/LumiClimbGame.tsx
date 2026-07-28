@@ -483,7 +483,7 @@ function PlayScreen({
   time: number;
   pulse: number;
   facing: Direction;
-  pose: "idle" | "climb" | "turn";
+  pose: "idle" | "climb" | "turn" | "fail";
   shaking: boolean;
   recordCelebration: boolean;
   effectsEnabled: boolean;
@@ -500,9 +500,11 @@ function PlayScreen({
     ? ASSETS.character.record
     : pose === "idle"
       ? ASSETS.character.idle
+      : pose === "fail"
+        ? ASSETS.character.fail
       : pose === "turn"
-      ? ASSETS.character.turn
-      : ASSETS.character.climb;
+        ? ASSETS.character.turn
+        : ASSETS.character.climb;
 
   const handlePointer = (event: ReactPointerEvent<HTMLElement>) => {
     if ((event.target as HTMLElement).closest("button")) return;
@@ -528,8 +530,12 @@ function PlayScreen({
       <div
         className={`player player--${pose} player--${facing < 0 ? "left" : "right"} player--pulse-${pulse % 2} ${recordCelebration ? "is-celebrating" : ""}`}
       >
-        {effectsEnabled && comboLevel >= 2 && !recordCelebration ? (
-          <div className="player-trails" aria-hidden="true">
+        {effectsEnabled && floor > 0 && pose !== "fail" && !recordCelebration ? (
+          <div
+            className={`player-trails ${comboLevel >= 2 ? "player-trails--combo" : ""}`}
+            key={`trail-${pulse}`}
+            aria-hidden="true"
+          >
             <img className="player-trail player-trail--1" src={playerSource} alt="" />
             <img className="player-trail player-trail--2" src={playerSource} alt="" />
           </div>
@@ -540,7 +546,7 @@ function PlayScreen({
           alt="계단을 오르는 루미"
           draggable="false"
         />
-        {effectsEnabled && floor > 0 && !recordCelebration ? (
+        {effectsEnabled && floor > 0 && pose !== "fail" && !recordCelebration ? (
           <TravelSparkles pulse={pulse} facing={facing} />
         ) : null}
       </div>
@@ -731,7 +737,7 @@ export function LumiClimbGame() {
   const [time, setTime] = useState(100);
   const [pulse, setPulse] = useState(0);
   const [facing, setFacing] = useState<Direction>(-1);
-  const [pose, setPose] = useState<"idle" | "climb" | "turn">("idle");
+  const [pose, setPose] = useState<"idle" | "climb" | "turn" | "fail">("idle");
   const [shaking, setShaking] = useState(false);
   const [recordCelebration, setRecordCelebration] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
@@ -855,7 +861,7 @@ export function LumiClimbGame() {
       if (direction !== expected) {
         setFacing(direction);
         facingRef.current = direction;
-        setPose("turn");
+        setPose("fail");
         window.setTimeout(() => {
           lockedRef.current = false;
           finishRun();
