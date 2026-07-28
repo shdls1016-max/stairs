@@ -294,16 +294,6 @@ function HomeScreen({
           <i className={`home-mote home-mote--${index + 1}`} key={index} />
         ))}
       </div>
-      <div className="home-decorations" aria-hidden="true">
-        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.grass2} className="home-decor home-decor--grass" />
-        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.flower2} className="home-decor home-decor--flower" />
-        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.rock2} className="home-decor home-decor--rock" />
-        <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.smallCloud1} className="home-decor home-decor--cloud" />
-        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.branch2} className="home-decor home-decor--branch" />
-        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird1} className="home-decor home-decor--bird" />
-        <SheetCrop sheet={SPRITE_SHEETS.particles} crop={SPRITES.starShard1} className="home-decor home-decor--star" />
-        <SheetCrop sheet={SPRITE_SHEETS.particles} crop={SPRITES.lightDiamond} className="home-decor home-decor--sparkle" />
-      </div>
       <IconButton label="설정 열기" icon="⚙︎" onClick={onSettings} className="home-settings" />
       <div className="home-title">
         <div className="game-logo" aria-label="STARBOUND STEPS">

@@ -3213,3 +3213,219 @@ input:focus-visible + i {
     min-height: 50px;
   }
 }
+
+/* Final approved asset application — keep this block last so legacy rules cannot override it. */
+body,
+button,
+input {
+  font-family:
+    "Arial Rounded MT Bold",
+    "Arial Black",
+    "Trebuchet MS",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    system-ui,
+    sans-serif;
+}
+
+button,
+.hud,
+.overlay-panel,
+.loading-copy {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.primary-button,
+.secondary-button,
+.play-button {
+  border: 0;
+  border-radius: 999px;
+  color: #fffefd;
+  background: transparent url("/assets/ui/ui-button-wide.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  text-shadow: 0 2px 0 rgba(104, 85, 164, 0.42);
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.play-button:hover {
+  background: transparent url("/assets/ui/ui-button-wide.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  filter: brightness(1.035);
+}
+
+.primary-button:active,
+.secondary-button:active,
+.play-button:active {
+  background: transparent url("/assets/ui/ui-button-wide.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  filter: brightness(0.99);
+  transform: translateY(2px) scale(0.97);
+}
+
+.play-button {
+  min-height: clamp(76px, 9.8vh, 92px);
+}
+
+.play-button::after {
+  content: none;
+}
+
+.play-symbol {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin-right: clamp(12px, 1.4vw, 18px);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.play-symbol::before {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  content: "";
+  border: 0;
+  border-radius: 0;
+  background: #fffdf7;
+  clip-path: polygon(8% 3%, 96% 50%, 8% 97%);
+  clip-path: path("M 5 2 Q 2 0 2 4 L 2 24 Q 2 28 6 26 L 25 15 Q 29 13 25 10 Z");
+  filter: drop-shadow(0 2px 0 rgba(101, 81, 160, 0.38));
+}
+
+.play-label {
+  font-family: "Arial Rounded MT Bold", "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: clamp(25px, 2.8vw, 35px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 0 rgba(104, 85, 164, 0.42);
+}
+
+.icon-button,
+.home-settings,
+.pause-control .icon-button {
+  border: 0;
+  border-radius: 50%;
+  color: #fffdf4;
+  background: transparent url("/assets/ui/ui-button-icon.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.icon-button:hover,
+.home-settings:hover,
+.pause-control .icon-button:hover {
+  background: transparent url("/assets/ui/ui-button-icon.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  filter: brightness(1.035);
+}
+
+.icon-button > span {
+  display: grid;
+  place-items: center;
+  width: 56%;
+  height: 56%;
+  color: #fffdf4;
+  font-family: "Arial Rounded MT Bold", "Arial Black", sans-serif;
+  font-size: 0.8em;
+  filter: drop-shadow(0 2px 0 rgba(72, 120, 157, 0.25));
+}
+
+.icon-button-art {
+  width: 43%;
+  height: 54%;
+  object-fit: contain;
+}
+
+.score-panel,
+.score-panel.is-near-record {
+  width: clamp(158px, 14vw, 202px);
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1763 / 647;
+  padding: 8px 18px 10px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ui-ink);
+  background: transparent url("/assets/ui/ui-panel-record.png") center / 100% 100% no-repeat;
+  box-shadow: none;
+  opacity: 1;
+  backdrop-filter: none;
+}
+
+.score-panel.is-near-record {
+  filter: drop-shadow(0 0 8px rgba(255, 211, 95, 0.62));
+}
+
+.height-primary {
+  padding-right: 10px;
+  border-right-color: rgba(132, 113, 193, 0.14);
+}
+
+.height-primary strong {
+  color: #7663bd;
+  font-size: clamp(25px, 2.4vw, 34px);
+  font-weight: 900;
+  text-shadow: none;
+}
+
+.height-primary span,
+.best-secondary span {
+  color: #7d84a6;
+  font-weight: 900;
+}
+
+.best-secondary {
+  padding-left: 10px;
+}
+
+.best-secondary strong {
+  color: #8c7bd0;
+  font-weight: 900;
+  text-shadow: none;
+}
+
+.game-logo {
+  font-family: "Arial Rounded MT Bold", "Arial Black", "Trebuchet MS", sans-serif;
+  filter: drop-shadow(0 5px 0 rgba(143, 126, 198, 0.15));
+}
+
+.logo-topline {
+  padding: 5px clamp(17px, 2vw, 27px) 6px;
+  color: #fffefd;
+  border: 3px solid rgba(255, 255, 255, 0.94);
+  background: linear-gradient(180deg, #cbbdf8 0%, #a895e9 100%);
+  box-shadow: 0 4px 0 #907dce, inset 0 2px 0 rgba(255, 255, 255, 0.58);
+  font-family: "Arial Rounded MT Bold", "Arial Black", sans-serif;
+  font-size: clamp(14px, 1.65vw, 23px);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.game-logo strong {
+  margin-top: -4px;
+  color: #fffefd;
+  background: none;
+  font-family: "Arial Rounded MT Bold", "Arial Black", sans-serif;
+  font-size: clamp(58px, min(7.5vw, 11.8vh), 108px);
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  -webkit-text-stroke: clamp(3px, 0.28vw, 5px) #8e7dcb;
+  paint-order: stroke fill;
+  text-shadow:
+    0 4px 0 #b9a9ed,
+    0 7px 0 rgba(255, 255, 255, 0.82),
+    0 11px 16px rgba(104, 91, 158, 0.16);
+}
+
+@media (max-width: 760px) {
+  .score-panel,
+  .score-panel.is-near-record {
+    width: clamp(148px, 43vw, 176px);
+    padding: 7px 15px 9px;
+  }
+}
