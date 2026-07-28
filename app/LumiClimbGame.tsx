@@ -13,6 +13,7 @@ import {
   ASSETS,
   PRELOAD_ASSETS,
   backgroundWeights,
+  comboLevelForStreak,
   directionForFloor,
   sceneryOpacity,
   stageForFloor,
@@ -66,6 +67,7 @@ const SPRITE_SHEETS = {
   forest: { source: ASSETS.sheets.forest, width: 1024, height: 1536 },
   sky: { source: ASSETS.sheets.sky, width: 1536, height: 1024 },
   stairs: { source: ASSETS.sheets.stairs, width: 1122, height: 1402 },
+  particles: { source: ASSETS.sheets.particles, width: 1680, height: 850 },
 } satisfies Record<string, SpriteSheet>;
 
 const SPRITES = {
@@ -107,6 +109,10 @@ const SPRITES = {
   wood: { x: 49, y: 491, width: 481, height: 186 },
   branchStep: { x: 52, y: 798, width: 462, height: 173 },
   cloudStep: { x: 60, y: 1084, width: 465, height: 211 },
+  lightDot: { x: 1104, y: 251, width: 81, height: 81 },
+  lightDiamond: { x: 1324, y: 249, width: 84, height: 84 },
+  starShard1: { x: 326, y: 548, width: 126, height: 164 },
+  starShard2: { x: 588, y: 548, width: 133, height: 163 },
 } satisfies Record<string, SpriteCrop>;
 
 function SheetCrop({
@@ -311,6 +317,8 @@ function HomeScreen({
 function Hud({
   floor,
   best,
+  recordTarget,
+  comboLevel,
   time,
   stage,
   onPause,
@@ -318,11 +326,16 @@ function Hud({
 }: {
   floor: number;
   best: number;
+  recordTarget: number;
+  comboLevel: number;
   time: number;
   stage: string;
   onPause: () => void;
   onSettings: () => void;
 }) {
+  const floorsToRecord = recordTarget - floor;
+  const isNearRecord = recordTarget > 0 && floorsToRecord >= 0 && floorsToRecord <= 10;
+
   return (
     <header className="hud">
       <div className="score-cluster">
@@ -330,12 +343,18 @@ function Hud({
           <span>현재 높이</span>
           <strong data-testid="height-value">{floor.toLocaleString()}층</strong>
         </div>
-        <div className="score-readout">
+        <div className={`score-readout score-readout--best ${isNearRecord ? "is-near-record" : ""}`}>
           <span>최고 기록</span>
           <strong data-testid="best-value">{best.toLocaleString()}층</strong>
         </div>
         <div className="stage-label">{stage}</div>
       </div>
+      {comboLevel > 0 ? (
+        <div className={`combo-indicator combo-indicator--${comboLevel}`} key={comboLevel}>
+          <span>COMBO</span>
+          <strong>{comboLevel}</strong>
+        </div>
+      ) : null}
       <div className="hud-actions">
         <IconButton label="설정" icon="⚙" onClick={onSettings} />
         <IconButton label="일시정지" icon="Ⅱ" onClick={onPause} />
@@ -404,31 +423,86 @@ function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
   );
 }
 
+function LandingBurst({
+  comboLevel,
+  pulse,
+}: {
+  comboLevel: number;
+  pulse: number;
+}) {
+  const particleCount = Math.min(10, 4 + comboLevel * 2);
+
+  return (
+    <div className="landing-burst" key={pulse} aria-hidden="true">
+      {Array.from({ length: particleCount }, (_, index) => {
+        const isStar = comboLevel > 0 && index % 3 === 0;
+        const crop = isStar
+          ? index % 2
+            ? SPRITES.starShard1
+            : SPRITES.starShard2
+          : index % 2
+            ? SPRITES.lightDot
+            : SPRITES.lightDiamond;
+
+        return (
+          <span
+            className={`landing-particle ${isStar ? "is-star" : "is-light"}`}
+            key={`${pulse}-${index}`}
+            style={
+              {
+                "--burst-x": `${(index - (particleCount - 1) / 2) * 18}px`,
+                "--burst-y": `${-28 - (index % 3) * 13}px`,
+                "--burst-rotate": `${-55 + index * 21}deg`,
+                "--burst-delay": `${(index % 3) * 14}ms`,
+              } as CSSProperties
+            }
+          >
+            <SheetCrop sheet={SPRITE_SHEETS.particles} crop={crop} />
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 function PlayScreen({
   floor,
   best,
+  recordTarget,
   time,
   pulse,
   facing,
   pose,
   shaking,
+  recordCelebration,
+  effectsEnabled,
   onInput,
   onPause,
   onSettings,
 }: {
   floor: number;
   best: number;
+  recordTarget: number;
   time: number;
   pulse: number;
   facing: Direction;
   pose: "climb" | "turn";
   shaking: boolean;
+  recordCelebration: boolean;
+  effectsEnabled: boolean;
   onInput: (direction: Direction) => void;
   onPause: () => void;
   onSettings: () => void;
 }) {
   const nextDirection = directionForFloor(floor + 1);
   const platforms = Array.from({ length: 7 }, (_, index) => floor + index);
+  const comboLevel = comboLevelForStreak(floor);
+  const isNewRecord = floor > recordTarget;
+  const playerSource = recordCelebration
+    ? ASSETS.character.record
+    : pose === "turn"
+      ? ASSETS.character.turn
+      : ASSETS.character.climb;
 
   const handlePointer = (event: ReactPointerEvent<HTMLElement>) => {
     if ((event.target as HTMLElement).closest("button")) return;
@@ -439,7 +513,7 @@ function PlayScreen({
 
   return (
     <section
-      className={`play-screen ${shaking ? "is-shaking" : ""}`}
+      className={`play-screen ${shaking ? "is-shaking" : ""} ${effectsEnabled && isNewRecord ? "is-record-zoom" : ""}`}
       data-testid="screen-playing"
       data-next-direction={nextDirection < 0 ? "left" : "right"}
       onPointerDown={handlePointer}
@@ -452,18 +526,27 @@ function PlayScreen({
         ))}
       </div>
       <div
-        className={`player player--${pose} player--${facing < 0 ? "left" : "right"} player--pulse-${pulse % 2}`}
+        className={`player player--${pose} player--${facing < 0 ? "left" : "right"} player--pulse-${pulse % 2} ${recordCelebration ? "is-celebrating" : ""}`}
       >
+        {effectsEnabled && comboLevel >= 2 && !recordCelebration ? (
+          <div className="player-trails" aria-hidden="true">
+            <img className="player-trail player-trail--1" src={playerSource} alt="" />
+            <img className="player-trail player-trail--2" src={playerSource} alt="" />
+          </div>
+        ) : null}
         <img
           key={`${pulse}-${pose}`}
-          src={pose === "turn" ? ASSETS.character.turn : ASSETS.character.climb}
+          src={playerSource}
           alt="계단을 오르는 루미"
           draggable="false"
         />
       </div>
+      {effectsEnabled && floor > 0 ? <LandingBurst comboLevel={comboLevel} pulse={pulse} /> : null}
       <Hud
         floor={floor}
         best={best}
+        recordTarget={recordTarget}
+        comboLevel={comboLevel}
         time={time}
         stage={stageForFloor(floor).name}
         onPause={onPause}
@@ -629,17 +712,20 @@ export function LumiClimbGame() {
   const [progress, setProgress] = useState(0);
   const [floor, setFloor] = useState(0);
   const [best, setBest] = useState(0);
+  const [recordTarget, setRecordTarget] = useState(0);
   const [time, setTime] = useState(100);
   const [pulse, setPulse] = useState(0);
   const [facing, setFacing] = useState<Direction>(-1);
   const [pose, setPose] = useState<"climb" | "turn">("climb");
   const [shaking, setShaking] = useState(false);
+  const [recordCelebration, setRecordCelebration] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const lockedRef = useRef(false);
   const floorRef = useRef(0);
   const bestRef = useRef(0);
   const runStartBestRef = useRef(0);
   const facingRef = useRef<Direction>(-1);
+  const recordCelebratedRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -730,6 +816,7 @@ export function LumiClimbGame() {
 
   const startGame = useCallback(() => {
     runStartBestRef.current = bestRef.current;
+    setRecordTarget(bestRef.current);
     floorRef.current = 0;
     setFloor(0);
     setTime(100);
@@ -737,6 +824,8 @@ export function LumiClimbGame() {
     setFacing(-1);
     facingRef.current = -1;
     setPose("climb");
+    setRecordCelebration(false);
+    recordCelebratedRef.current = false;
     lockedRef.current = false;
     persistRecord(0, bestRef.current);
     setScreen("playing");
@@ -774,6 +863,14 @@ export function LumiClimbGame() {
       }
       persistRecord(nextFloor, nextBest);
       if (settings.haptics && navigator.vibrate) navigator.vibrate(10);
+      if (nextFloor > runStartBestRef.current && !recordCelebratedRef.current) {
+        recordCelebratedRef.current = true;
+        setRecordCelebration(true);
+        window.setTimeout(
+          () => setRecordCelebration(false),
+          settings.reducedMotion ? 60 : 420,
+        );
+      }
 
       window.setTimeout(() => setPose("climb"), settings.reducedMotion ? 40 : 130);
       window.setTimeout(() => {
@@ -836,11 +933,14 @@ export function LumiClimbGame() {
         <PlayScreen
           floor={floor}
           best={best}
+          recordTarget={recordTarget}
           time={time}
           pulse={pulse}
           facing={facing}
           pose={pose}
           shaking={shaking}
+          recordCelebration={recordCelebration}
+          effectsEnabled={settings.effects}
           onInput={handleInput}
           onPause={() => setScreen("paused")}
           onSettings={() => openSettings("playing")}

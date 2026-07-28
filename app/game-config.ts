@@ -30,6 +30,13 @@ export const PRELOAD_ASSETS = [
 
 export type Direction = -1 | 1;
 
+export function comboLevelForStreak(streak: number) {
+  if (streak >= 20) return 3;
+  if (streak >= 10) return 2;
+  if (streak >= 5) return 1;
+  return 0;
+}
+
 export function directionForFloor(floor: number): Direction {
   const value = Math.sin((floor + 4) * 12.9898) * 43758.5453;
   return value - Math.floor(value) > 0.5 ? 1 : -1;

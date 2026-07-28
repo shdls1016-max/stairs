@@ -29,7 +29,7 @@ test("all configured game artwork exists in public assets", async () => {
 });
 
 test("height regions blend continuously and resolve to one full background", async () => {
-  const { backgroundWeights, sceneryOpacity, stageForFloor } =
+  const { backgroundWeights, comboLevelForStreak, sceneryOpacity, stageForFloor } =
     await importGameConfig();
 
   for (const floor of [0, 79, 80, 100, 119, 120, 199, 200, 239, 240, 319, 320, 359, 360, 999]) {
@@ -48,6 +48,10 @@ test("height regions blend continuously and resolve to one full background", asy
   assert.equal(stageForFloor(240).name, "높은 나무");
   assert.equal(stageForFloor(320).name, "나무 꼭대기");
   assert.equal(stageForFloor(360).name, "낮은 하늘");
+  assert.equal(comboLevelForStreak(4), 0);
+  assert.equal(comboLevelForStreak(5), 1);
+  assert.equal(comboLevelForStreak(10), 2);
+  assert.equal(comboLevelForStreak(20), 3);
 });
 
 test("responsive shell uses dynamic viewport and safe-area rules", async () => {
@@ -72,6 +76,11 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(layout, /viewportFit:\s*"cover"/);
   assert.match(layout, /userScalable:\s*false/);
   assert.doesNotMatch(component, /<canvas|<svg/i);
+  assert.match(component, /LandingBurst/);
+  assert.match(component, /player-trails/);
+  assert.match(component, /recordCelebration/);
+  assert.match(css, /landing-particle/);
+  assert.match(css, /clamp\(/);
 });
 
 test("production worker renders the game document", async () => {

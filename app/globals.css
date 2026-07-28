@@ -666,6 +666,7 @@ img {
 }
 
 .score-readout {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -694,6 +695,72 @@ img {
 
 .score-readout--current strong {
   color: var(--lavender-deep);
+}
+
+.score-readout--best.is-near-record {
+  border-color: rgba(255, 225, 126, 0.96);
+  background: rgba(255, 251, 224, 0.86);
+  box-shadow:
+    0 8px 22px rgba(41, 67, 84, 0.13),
+    0 0 0 3px rgba(255, 229, 135, 0.24),
+    0 0 24px rgba(255, 219, 91, 0.36);
+}
+
+.score-readout--best.is-near-record strong {
+  color: #bd7a22;
+  animation: best-near-pulse 720ms ease-in-out infinite alternate;
+}
+
+@keyframes best-near-pulse {
+  from { scale: 1; }
+  to { scale: 1.08; }
+}
+
+.combo-indicator {
+  position: absolute;
+  top: calc(var(--safe-top) + 10px);
+  left: 50%;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: clamp(88px, 10vw, 122px);
+  padding: 7px 14px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(108, 92, 201, 0.9), rgba(126, 105, 224, 0.86));
+  box-shadow: 0 8px 22px rgba(65, 55, 142, 0.22);
+  animation: combo-bounce 480ms cubic-bezier(0.2, 0.9, 0.32, 1.3);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.combo-indicator span {
+  font-size: clamp(9px, 0.8vw, 11px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.combo-indicator strong {
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.combo-indicator--2 {
+  background: linear-gradient(135deg, rgba(87, 127, 204, 0.92), rgba(116, 102, 225, 0.9));
+}
+
+.combo-indicator--3 {
+  background: linear-gradient(135deg, rgba(237, 171, 74, 0.94), rgba(210, 104, 159, 0.9));
+  box-shadow: 0 8px 26px rgba(222, 132, 75, 0.3);
+}
+
+@keyframes combo-bounce {
+  0% { transform: translateX(-50%) scale(0.55); opacity: 0; }
+  62% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); }
 }
 
 .stage-label {
@@ -819,6 +886,58 @@ img {
   object-fit: contain;
 }
 
+.player-trails {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+}
+
+.player-trail {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  filter: saturate(0.8) brightness(1.12);
+  animation: player-trail-fade 310ms ease-out;
+}
+
+.player-trail--1 {
+  animation-delay: 20ms;
+}
+
+.player-trail--2 {
+  animation-delay: 75ms;
+}
+
+.player--left .player-trail--1,
+.player--left .player-trail--2 {
+  translate: 20px 5px;
+}
+
+.player--right .player-trail--1,
+.player--right .player-trail--2 {
+  translate: -20px 5px;
+}
+
+.player-trail--2 {
+  scale: 0.94;
+}
+
+@keyframes player-trail-fade {
+  0% { opacity: 0.3; }
+  100% { opacity: 0; translate: 0 0; }
+}
+
+.player.is-celebrating {
+  animation: record-pose-pop 420ms cubic-bezier(0.2, 0.86, 0.3, 1.18);
+}
+
+@keyframes record-pose-pop {
+  0% { scale: 0.84; }
+  55% { scale: 1.13; }
+  100% { scale: 1; }
+}
+
 .player--right img {
   transform: scaleX(-1);
 }
@@ -887,6 +1006,61 @@ img {
   background-size: 600% 200%;
   background-position: 60% 0;
   opacity: 0.38;
+}
+
+.landing-burst {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: 18%;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.landing-particle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: clamp(13px, 1.8vw, 24px);
+  opacity: 0;
+  animation: landing-particle-burst 620ms cubic-bezier(0.18, 0.72, 0.25, 1) forwards;
+  animation-delay: var(--burst-delay);
+}
+
+.landing-particle.is-star {
+  width: clamp(16px, 2.1vw, 28px);
+}
+
+@keyframes landing-particle-burst {
+  0% {
+    transform: translate(-50%, 0) rotate(0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.92;
+  }
+  100% {
+    transform:
+      translate(calc(-50% + var(--burst-x)), var(--burst-y))
+      rotate(var(--burst-rotate));
+    opacity: 0;
+  }
+}
+
+.play-screen.is-record-zoom .world,
+.play-screen.is-record-zoom .platform-field,
+.play-screen.is-record-zoom .particle-field {
+  transform-origin: 50% 56%;
+  animation: record-camera-zoom 520ms cubic-bezier(0.22, 0.78, 0.3, 1);
+}
+
+@keyframes record-camera-zoom {
+  0% { scale: 1; }
+  48% { scale: 1.035; }
+  100% { scale: 1; }
 }
 
 @keyframes particle-fall {
@@ -1266,6 +1440,12 @@ img {
     width: min(45vw, 190px);
   }
 
+  .combo-indicator {
+    top: calc(var(--safe-top) + 93px);
+    min-width: 82px;
+    padding: 6px 12px;
+  }
+
   .platform {
     width: clamp(108px, 31vw, 145px);
   }
@@ -1281,6 +1461,10 @@ img {
   .player {
     bottom: 15.5%;
     width: clamp(108px, 31vw, 145px);
+  }
+
+  .landing-burst {
+    bottom: 18.5%;
   }
 
   .meadow-shrub {
