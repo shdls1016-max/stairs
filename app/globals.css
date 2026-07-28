@@ -3589,7 +3589,6 @@ button,
   width: min(100%, 220px);
 }
 
-.menu-buttons .secondary-button:nth-of-type(2),
 .settings-back {
   justify-self: center;
   width: min(100%, 180px);
@@ -3748,4 +3747,10 @@ button,
     width: min(44vw, 320px);
     height: min(61vh, 330px);
   }
+}
+
+/* The idle artwork itself is enlarged by 22%; the title and PLAY anchors stay fixed. */
+.home-hero img {
+  scale: 1.22;
+  transform-origin: center bottom;
 }

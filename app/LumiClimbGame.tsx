@@ -898,7 +898,9 @@ export function LumiClimbGame() {
         );
       }
 
-      window.setTimeout(() => setPose("climb"), settings.reducedMotion ? 40 : 130);
+      if (!changedDirection) {
+        window.setTimeout(() => setPose("climb"), settings.reducedMotion ? 40 : 130);
+      }
       window.setTimeout(() => {
         lockedRef.current = false;
       }, settings.reducedMotion ? 70 : 190);
