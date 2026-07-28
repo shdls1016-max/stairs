@@ -495,14 +495,14 @@ img {
 }
 
 .home-actions {
-  position: relative;
+  position: absolute;
+  bottom: clamp(58px, 11vh, 108px);
+  left: 60%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  align-self: center;
-  justify-self: center;
   width: min(100%, 410px);
-  transform: translateY(clamp(24px, 7vh, 70px));
+  transform: translateX(-50%);
   text-align: center;
 }
 
@@ -1575,6 +1575,9 @@ img {
   }
 
   .home-actions {
+    position: relative;
+    bottom: auto;
+    left: auto;
     align-self: end;
     width: min(100%, 390px);
     transform: none;
@@ -1795,10 +1798,6 @@ img {
     min-height: 190px;
   }
 
-  .home-actions {
-    transform: translateY(clamp(6px, 3vh, 18px));
-  }
-
   .home-best {
     margin: 5px 0 10px;
     padding-block: 4px 5px;
@@ -1859,6 +1858,9 @@ img {
   }
 
   .home-actions {
+    position: relative;
+    bottom: auto;
+    left: auto;
     width: min(100%, 300px);
     transform: translateY(4px);
   }
