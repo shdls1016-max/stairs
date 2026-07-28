@@ -3664,3 +3664,88 @@ button,
   object-fit: fill;
   transform: none;
 }
+
+/* Keep every action inside the same modal at one consistent size. */
+.menu-buttons,
+.result-buttons {
+  justify-items: center;
+}
+
+.menu-buttons .primary-button,
+.menu-buttons .secondary-button,
+.menu-buttons .text-button,
+.result-buttons .primary-button,
+.result-buttons .secondary-button {
+  width: min(100%, 220px);
+}
+
+.menu-buttons .text-button {
+  aspect-ratio: 1599 / 526;
+  min-height: 0;
+  height: auto;
+}
+
+.result-buttons {
+  grid-template-columns: 1fr;
+  width: min(100%, 220px);
+  margin-inline: auto;
+}
+
+/* Direction changes tilt briefly but no longer use the upward landing bounce. */
+.player--turn.player--left {
+  animation: turn-left 170ms ease-out;
+}
+
+.player--turn.player--right {
+  animation: turn-right 170ms ease-out;
+}
+
+/* Make the bag sparkles travel farther in a widening, fading fan. */
+.travel-spark {
+  animation-duration: 860ms;
+}
+
+@keyframes travel-spark-drift {
+  0% {
+    transform: translate(0, 2px) rotate(0) scale(0.58);
+    opacity: 0;
+  }
+  16% {
+    transform: translate(var(--spark-x-mid), var(--spark-y-mid)) rotate(9deg) scale(1.08);
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.68;
+  }
+  100% {
+    transform: translate(var(--spark-x), var(--spark-y)) rotate(var(--spark-rotate)) scale(0.16);
+    opacity: 0;
+  }
+}
+
+/* Give Lumi stronger presence on the title screen without moving the PLAY area. */
+.home-hero {
+  width: clamp(300px, 48vmin, 540px);
+  height: min(67vh, 620px);
+}
+
+@media (max-width: 760px) {
+  .home-hero {
+    width: clamp(270px, 82vw, 400px);
+    height: min(62vh, 530px);
+  }
+}
+
+@media (max-height: 650px) {
+  .home-hero {
+    width: clamp(230px, 64vmin, 350px);
+    height: min(58vh, 410px);
+  }
+}
+
+@media (max-width: 760px) and (max-height: 700px) and (orientation: landscape) {
+  .home-hero {
+    width: min(44vw, 320px);
+    height: min(61vh, 330px);
+  }
+}

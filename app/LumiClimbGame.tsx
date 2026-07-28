@@ -426,7 +426,7 @@ function TravelSparkles({
   pulse: number;
   facing: Direction;
 }) {
-  const particleCount = 2 + (pulse % 3);
+  const particleCount = 5 + (pulse % 3);
 
   return (
     <div
@@ -435,6 +435,9 @@ function TravelSparkles({
       aria-hidden="true"
     >
       {Array.from({ length: particleCount }, (_, index) => {
+        const fanOffset = index - (particleCount - 1) / 2;
+        const direction = facing < 0 ? 1 : -1;
+        const distance = 72 + Math.abs(fanOffset) * 15 + index * 5;
         const crop =
           index % 3 === 0
             ? SPRITES.starShard1
@@ -447,10 +450,11 @@ function TravelSparkles({
             key={`${pulse}-${index}`}
             style={
               {
-                "--spark-x": `${(facing < 0 ? 1 : -1) * (30 + index * 15)}px`,
-                "--spark-x-mid": `${(facing < 0 ? 1 : -1) * (12 + index * 7)}px`,
-                "--spark-y": `${-18 - (index % 3) * 12}px`,
-                "--spark-delay": `${index * 22}ms`,
+                "--spark-x": `${direction * distance}px`,
+                "--spark-x-mid": `${direction * (24 + Math.abs(fanOffset) * 6)}px`,
+                "--spark-y-mid": `${-9 + fanOffset * 4}px`,
+                "--spark-y": `${-28 + fanOffset * 15}px`,
+                "--spark-delay": `${index * 18}ms`,
                 "--spark-rotate": `${-24 + index * 31}deg`,
               } as CSSProperties
             }
