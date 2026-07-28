@@ -48,6 +48,90 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+type SpriteCrop = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+type SpriteSheet = {
+  source: string;
+  width: number;
+  height: number;
+};
+
+const SPRITE_SHEETS = {
+  meadow: { source: ASSETS.sheets.meadow, width: 1402, height: 1122 },
+  forest: { source: ASSETS.sheets.forest, width: 1024, height: 1536 },
+  sky: { source: ASSETS.sheets.sky, width: 1536, height: 1024 },
+  stairs: { source: ASSETS.sheets.stairs, width: 1122, height: 1402 },
+} satisfies Record<string, SpriteSheet>;
+
+const SPRITES = {
+  grass1: { x: 133, y: 123, width: 249, height: 122 },
+  grass2: { x: 569, y: 95, width: 227, height: 149 },
+  grass3: { x: 983, y: 99, width: 234, height: 147 },
+  flower1: { x: 97, y: 372, width: 134, height: 159 },
+  flower2: { x: 351, y: 341, width: 163, height: 198 },
+  flower3: { x: 626, y: 365, width: 121, height: 170 },
+  rock1: { x: 857, y: 416, width: 263, height: 121 },
+  rock2: { x: 1120, y: 447, width: 181, height: 90 },
+  shrub1: { x: 103, y: 645, width: 247, height: 178 },
+  shrub2: { x: 350, y: 657, width: 350, height: 165 },
+  tree1: { x: 700, y: 618, width: 278, height: 216 },
+  tree2: { x: 1087, y: 598, width: 202, height: 236 },
+  butterfly: { x: 963, y: 934, width: 132, height: 106 },
+  trunk1: { x: 130, y: 64, width: 291, height: 531 },
+  trunk2: { x: 570, y: 95, width: 330, height: 504 },
+  branch1: { x: 44, y: 670, width: 212, height: 221 },
+  branch2: { x: 256, y: 668, width: 256, height: 235 },
+  branch3: { x: 512, y: 706, width: 256, height: 203 },
+  branch4: { x: 768, y: 717, width: 204, height: 187 },
+  leaves1: { x: 42, y: 977, width: 214, height: 181 },
+  leaves2: { x: 256, y: 969, width: 256, height: 189 },
+  leaves3: { x: 512, y: 974, width: 256, height: 191 },
+  nest: { x: 768, y: 1011, width: 215, height: 156 },
+  bird1: { x: 98, y: 1218, width: 255, height: 195 },
+  bird2: { x: 350, y: 1230, width: 341, height: 191 },
+  feather: { x: 781, y: 1244, width: 149, height: 171 },
+  cloud1: { x: 115, y: 99, width: 337, height: 216 },
+  cloud2: { x: 557, y: 94, width: 381, height: 227 },
+  cloud3: { x: 1042, y: 97, width: 381, height: 223 },
+  longCloud1: { x: 102, y: 406, width: 647, height: 178 },
+  longCloud2: { x: 818, y: 418, width: 604, height: 164 },
+  smallCloud1: { x: 399, y: 675, width: 203, height: 69 },
+  smallCloud2: { x: 910, y: 663, width: 227, height: 95 },
+  flock: { x: 279, y: 835, width: 201, height: 98 },
+  stone: { x: 59, y: 166, width: 464, height: 184 },
+  wood: { x: 49, y: 491, width: 481, height: 186 },
+  branchStep: { x: 52, y: 798, width: 462, height: 173 },
+  cloudStep: { x: 60, y: 1084, width: 465, height: 211 },
+} satisfies Record<string, SpriteCrop>;
+
+function SheetCrop({
+  sheet,
+  crop,
+  className = "",
+}: {
+  sheet: SpriteSheet;
+  crop: SpriteCrop;
+  className?: string;
+}) {
+  const style = {
+    aspectRatio: `${crop.width} / ${crop.height}`,
+    "--sheet-width": `${(sheet.width / crop.width) * 100}%`,
+    "--sheet-left": `${-(crop.x / crop.width) * 100}%`,
+    "--sheet-top": `${-(crop.y / crop.height) * 100}%`,
+  } as CSSProperties;
+
+  return (
+    <span className={`sheet-crop ${className}`} style={style}>
+      <img src={sheet.source} alt="" draggable="false" />
+    </span>
+  );
+}
+
 function preloadImages(onProgress: (value: number) => void) {
   let completed = 0;
   return Promise.all(
@@ -71,6 +155,10 @@ function preloadImages(onProgress: (value: number) => void) {
 function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
   const weights = backgroundWeights(floor);
   const opacity = sceneryOpacity(floor);
+  const youngForest = clamp((floor - 55) / 75, 0, 1);
+  const highForest = clamp((floor - 155) / 95, 0, 1) * (1 - clamp((floor - 320) / 55, 0, 1));
+  const forestLife = clamp((floor - 175) / 90, 0, 1) * (1 - clamp((floor - 335) / 35, 0, 1));
+  const cloudCover = clamp((floor - 295) / 75, 0, 1);
   const worldStyle = {
     "--world-shift": `${-((floor % 10) * 1.7)}px`,
     "--cloud-speed": `${clamp(34 - floor / 24, 18, 34)}s`,
@@ -88,23 +176,49 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
       ))}
 
       <div className="scenery scenery--meadow" style={{ opacity: opacity.meadow }}>
-        <div className="sheet-sprite meadow-sapling meadow-sapling--left" />
-        <div className="sheet-sprite meadow-sapling meadow-sapling--right" />
-        <div className="sheet-sprite meadow-shrub meadow-shrub--left" />
-        <div className="sheet-sprite meadow-shrub meadow-shrub--right" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.grass1} className="scene-object meadow-grass meadow-grass--1" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.grass2} className="scene-object meadow-grass meadow-grass--2" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.grass3} className="scene-object meadow-grass meadow-grass--3" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.flower1} className="scene-object meadow-flower meadow-flower--1" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.flower3} className="scene-object meadow-flower meadow-flower--2" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.rock1} className="scene-object meadow-rock meadow-rock--1" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.rock2} className="scene-object meadow-rock meadow-rock--2" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.shrub1} className="scene-object meadow-shrub meadow-shrub--1" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.shrub2} className="scene-object meadow-shrub meadow-shrub--2" />
+        <div className="young-tree-group" style={{ opacity: youngForest }}>
+          <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.tree1} className="scene-object young-tree young-tree--1" />
+          <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.tree2} className="scene-object young-tree young-tree--2" />
+          <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.tree1} className="scene-object young-tree young-tree--3" />
+        </div>
       </div>
 
       <div className="scenery scenery--forest" style={{ opacity: opacity.forest }}>
-        <div className="sheet-sprite forest-trunk forest-trunk--left" />
-        <div className="sheet-sprite forest-trunk forest-trunk--right" />
-        <div className="sheet-sprite forest-leaves forest-leaves--left" />
-        <div className="sheet-sprite forest-leaves forest-leaves--right" />
+        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.trunk1} className="scene-object forest-trunk forest-trunk--1" />
+        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.trunk2} className="scene-object forest-trunk forest-trunk--2" />
+        <div className="high-forest-group" style={{ opacity: highForest }}>
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.branch1} className="scene-object forest-branch forest-branch--1" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.branch3} className="scene-object forest-branch forest-branch--2" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.leaves1} className="scene-object forest-leaves forest-leaves--1" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.leaves2} className="scene-object forest-leaves forest-leaves--2" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.leaves3} className="scene-object forest-leaves forest-leaves--3" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.nest} className="scene-object forest-nest" />
+        </div>
+        <div className="forest-life-group" style={{ opacity: forestLife }}>
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird1} className="scene-object forest-bird forest-bird--1" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird2} className="scene-object forest-bird forest-bird--2" />
+          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.feather} className="scene-object forest-feather" />
+        </div>
       </div>
 
       <div className="scenery scenery--sky" style={{ opacity: opacity.sky }}>
-        <div className="sheet-sprite sky-cloud sky-cloud--left" />
-        <div className="sheet-sprite sky-cloud sky-cloud--right" />
-        <div className="sheet-sprite sky-cloud sky-cloud--far" />
+        <div className="sky-object-group" style={{ opacity: cloudCover }}>
+          <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.cloud1} className="scene-object sky-cloud sky-cloud--1" />
+          <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.cloud2} className="scene-object sky-cloud sky-cloud--2" />
+          <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.cloud3} className="scene-object sky-cloud sky-cloud--3" />
+          <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.longCloud1} className="scene-object sky-cloud sky-cloud--4" />
+          <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.smallCloud2} className="scene-object sky-cloud sky-cloud--5" />
+          <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.flock} className="scene-object sky-flock" />
+        </div>
       </div>
       <div className="light-haze" />
     </div>
@@ -175,7 +289,7 @@ function HomeScreen({
           <div className="game-logo" aria-label="루미 끝없는 오르기">
             <span className="logo-kicker">별빛 여행자</span>
             <strong>LUMI</strong>
-            <span className="logo-subtitle">ENDLESS CLIMB</span>
+            <span className="logo-subtitle">끝없는 오르기</span>
           </div>
           <div className="home-best">
             <span>최고 높이</span>
@@ -183,7 +297,7 @@ function HomeScreen({
           </div>
           <button className="primary-button play-button" type="button" onClick={onPlay}>
             <span className="play-symbol" aria-hidden="true">▶</span>
-            PLAY
+            게임 시작
           </button>
           <p className="control-hint">
             화면 좌우 터치 · 키보드 ← →
@@ -240,25 +354,31 @@ function Platform({
   floor: number;
   index: number;
 }) {
-  const stage = stageForFloor(floor);
   const direction = index === 0 ? 0 : directionForFloor(floor);
-  const column = floor % 2;
   const positionClass =
     direction === 0 ? "platform--center" : direction < 0 ? "platform--left" : "platform--right";
+  const progressPick = Math.abs(Math.sin((floor + 9) * 18.734)) % 1;
+  let platformKind: "stone" | "wood" | "branchStep" | "cloudStep" = "stone";
+  if (floor >= 360) platformKind = "cloudStep";
+  else if (floor >= 320) platformKind = progressPick < (floor - 320) / 40 ? "cloudStep" : "branchStep";
+  else if (floor >= 240) platformKind = "branchStep";
+  else if (floor >= 200) platformKind = progressPick < (floor - 200) / 40 ? "branchStep" : "wood";
+  else if (floor >= 120) platformKind = "wood";
+  else if (floor >= 80) platformKind = progressPick < (floor - 80) / 40 ? "wood" : "stone";
   const style = {
-    "--platform-x": column === 0 ? "0%" : "100%",
-    "--platform-y": `${stage.platformRow * 33.333}%`,
     "--platform-bottom": `${14 + index * 12}%`,
     "--platform-depth": `${1 - index * 0.055}`,
   } as CSSProperties;
 
   return (
     <div
-      className={`platform ${positionClass}`}
+      className={`platform platform--${platformKind} ${positionClass} ${floor % 2 ? "is-mirrored" : ""}`}
       style={style}
       data-platform-floor={floor}
       aria-hidden="true"
-    />
+    >
+      <SheetCrop sheet={SPRITE_SHEETS.stairs} crop={SPRITES[platformKind]} className="platform-art" />
+    </div>
   );
 }
 
@@ -416,7 +536,7 @@ function ResultScreen({
   return (
     <Overlay
       eyebrow={isRecord ? "별빛이 더 높이 빛났어요!" : "조금만 더 올라가 볼까요?"}
-      title={isRecord ? "NEW RECORD" : "이번 오르기"}
+      title={isRecord ? "최고 기록 갱신!" : "이번 오르기"}
       className={`result-overlay ${isRecord ? "is-record" : "is-gameover"}`}
     >
       <div className="result-layout" data-testid={isRecord ? "screen-record" : "screen-gameover"}>
@@ -435,8 +555,8 @@ function ResultScreen({
           </div>
           <p>최고 기록 <b>{best.toLocaleString()}층</b></p>
           <div className="result-buttons">
-            <button className="primary-button" type="button" onClick={onRetry}>Retry</button>
-            <button className="secondary-button" type="button" onClick={onHome}>Home</button>
+            <button className="primary-button" type="button" onClick={onRetry}>다시 도전</button>
+            <button className="secondary-button" type="button" onClick={onHome}>홈으로</button>
           </div>
         </div>
       </div>

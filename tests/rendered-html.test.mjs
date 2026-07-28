@@ -65,6 +65,10 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(component, /localStorage\.setItem\(BEST_KEY/);
   assert.match(component, /ArrowLeft/);
   assert.match(component, /onPointerDown/);
+  assert.match(component, /최고 기록 갱신!/);
+  assert.match(component, /다시 도전/);
+  assert.match(component, /홈으로/);
+  assert.doesNotMatch(component, /NEW RECORD|>Retry<|>Home<|>PLAY/);
   assert.match(layout, /viewportFit:\s*"cover"/);
   assert.match(layout, /userScalable:\s*false/);
   assert.doesNotMatch(component, /<canvas|<svg/i);
