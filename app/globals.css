@@ -3242,7 +3242,7 @@ button,
   border: 0;
   border-radius: 999px;
   color: #fffefd;
-  background: transparent url("/assets/ui/ui-button-wide.png") center / 100% 100% no-repeat;
+  background: transparent url("/assets/ui/ui-button-wide.png") center / contain no-repeat;
   box-shadow: none;
   text-shadow: 0 2px 0 rgba(104, 85, 164, 0.42);
 }
@@ -3250,7 +3250,7 @@ button,
 .primary-button:hover,
 .secondary-button:hover,
 .play-button:hover {
-  background: transparent url("/assets/ui/ui-button-wide.png") center / 100% 100% no-repeat;
+  background: transparent url("/assets/ui/ui-button-wide.png") center / contain no-repeat;
   box-shadow: none;
   filter: brightness(1.035);
 }
@@ -3258,7 +3258,7 @@ button,
 .primary-button:active,
 .secondary-button:active,
 .play-button:active {
-  background: transparent url("/assets/ui/ui-button-wide.png") center / 100% 100% no-repeat;
+  background: transparent url("/assets/ui/ui-button-wide.png") center / contain no-repeat;
   box-shadow: none;
   filter: brightness(0.99);
   transform: translateY(2px) scale(0.97);
@@ -3437,13 +3437,15 @@ button,
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 1599 / 526;
+  min-height: 0;
+  height: auto;
   padding: 0 clamp(22px, 2.4vw, 34px) 3px;
   line-height: 1;
   text-align: center;
 }
 
 .icon-button,
-.home-settings,
 .pause-control .icon-button {
   position: relative;
   display: grid;
@@ -3529,5 +3531,37 @@ button,
 @media (max-width: 760px) {
   .play-combo {
     bottom: 60%;
+  }
+}
+
+/* Preserve the approved wide-button artwork and restore the home controls. */
+.home-settings {
+  position: absolute;
+  z-index: 4;
+  top: calc(var(--safe-top) + 8px);
+  right: calc(var(--safe-right) + 8px);
+  bottom: auto;
+  left: auto;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+}
+
+.home-actions {
+  right: auto;
+  bottom: calc(var(--safe-bottom) + clamp(34px, 5.5vh, 56px));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.play-button {
+  width: min(82vw, 340px);
+}
+
+@media (max-height: 650px) {
+  .home-actions {
+    bottom: calc(var(--safe-bottom) + 18px);
   }
 }
