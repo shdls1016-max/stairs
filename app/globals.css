@@ -3758,3 +3758,117 @@ button,
   scale: 1.22;
   transform-origin: center bottom;
 }
+
+/*
+ * Continuous staircase path: lane positions are accumulated from the current
+ * floor, so every surviving step shifts as one camera-tracked staircase.
+ */
+.platform--lane-0 {
+  left: 50%;
+}
+
+.platform--lane-m1 {
+  left: calc(50% - clamp(48px, 6.4vw, 104px));
+}
+
+.platform--lane-p1 {
+  left: calc(50% + clamp(48px, 6.4vw, 104px));
+}
+
+.platform--lane-m2 {
+  left: calc(50% - clamp(96px, 12.8vw, 208px));
+}
+
+.platform--lane-p2 {
+  left: calc(50% + clamp(96px, 12.8vw, 208px));
+}
+
+.platform--lane-m3 {
+  left: calc(50% - clamp(144px, 19.2vw, 312px));
+}
+
+.platform--lane-p3 {
+  left: calc(50% + clamp(144px, 19.2vw, 312px));
+}
+
+.platform--lane-m4 {
+  left: calc(50% - clamp(192px, 25.6vw, 416px));
+}
+
+.platform--lane-p4 {
+  left: calc(50% + clamp(192px, 25.6vw, 416px));
+}
+
+.platform-field--pulse-0,
+.platform-field--pulse-1 {
+  animation: none;
+}
+
+/* The character now travels into the tracked step instead of waiting at center. */
+.player--climb.player--left {
+  animation: player-path-left 280ms cubic-bezier(0.2, 0.82, 0.32, 1.16);
+}
+
+.player--climb.player--right {
+  animation: player-path-right 280ms cubic-bezier(0.2, 0.82, 0.32, 1.16);
+}
+
+.player--turn.player--left {
+  animation: player-turn-path-left 170ms ease-out;
+}
+
+.player--turn.player--right {
+  animation: player-turn-path-right 170ms ease-out;
+}
+
+@keyframes player-path-left {
+  0% {
+    transform: translateX(calc(-50% + clamp(48px, 6.4vw, 104px))) translateY(7px)
+      rotate(3deg) scale(0.97, 1.03);
+  }
+  46% {
+    transform: translateX(calc(-50% + clamp(14px, 2vw, 32px))) translateY(-13px)
+      rotate(-4deg) scale(1.02);
+  }
+  76% {
+    transform: translateX(-50%) translateY(2px) rotate(1deg) scale(1.06, 0.92);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes player-path-right {
+  0% {
+    transform: translateX(calc(-50% - clamp(48px, 6.4vw, 104px))) translateY(7px)
+      rotate(-3deg) scale(0.97, 1.03);
+  }
+  46% {
+    transform: translateX(calc(-50% - clamp(14px, 2vw, 32px))) translateY(-13px)
+      rotate(4deg) scale(1.02);
+  }
+  76% {
+    transform: translateX(-50%) translateY(2px) rotate(-1deg) scale(1.06, 0.92);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes player-turn-path-left {
+  from {
+    transform: translateX(calc(-50% + clamp(48px, 6.4vw, 104px))) rotate(7deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(0);
+  }
+}
+
+@keyframes player-turn-path-right {
+  from {
+    transform: translateX(calc(-50% - clamp(48px, 6.4vw, 104px))) rotate(-7deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(0);
+  }
+}

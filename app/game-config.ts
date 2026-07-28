@@ -49,6 +49,22 @@ export function directionForFloor(floor: number): Direction {
   return value - Math.floor(value) > 0.5 ? 1 : -1;
 }
 
+export function laneForPlatform(currentFloor: number, targetFloor: number) {
+  let lane = 0;
+
+  if (targetFloor > currentFloor) {
+    for (let step = currentFloor + 1; step <= targetFloor; step += 1) {
+      lane += directionForFloor(step);
+    }
+  } else {
+    for (let step = currentFloor; step > targetFloor; step -= 1) {
+      lane -= directionForFloor(step);
+    }
+  }
+
+  return lane;
+}
+
 export function stageForFloor(floor: number) {
   if (floor < 80) return { name: "초원", platformRow: 0 };
   if (floor < 120) return { name: "숲의 입구", platformRow: 0 };

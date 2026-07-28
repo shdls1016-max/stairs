@@ -15,6 +15,7 @@ import {
   backgroundWeights,
   comboLevelForStreak,
   directionForFloor,
+  laneForPlatform,
   sceneryOpacity,
   type Direction,
 } from "./game-config";
@@ -360,13 +361,17 @@ function Hud({
 function Platform({
   floor,
   offset,
+  lane,
 }: {
   floor: number;
   offset: number;
+  lane: number;
 }) {
-  const direction = offset === 0 || floor === 0 ? 0 : directionForFloor(floor);
+  const direction = Math.sign(lane);
   const positionClass =
     direction === 0 ? "platform--center" : direction < 0 ? "platform--left" : "platform--right";
+  const laneClass =
+    lane === 0 ? "platform--lane-0" : `platform--lane-${lane < 0 ? `m${Math.abs(lane)}` : `p${lane}`}`;
   const progressPick = Math.abs(Math.sin((floor + 9) * 18.734)) % 1;
   let platformKind: "stone" | "wood" | "branchStep" | "cloudStep" = "stone";
   if (floor >= 360) platformKind = "cloudStep";
@@ -386,10 +391,11 @@ function Platform({
 
   return (
     <div
-      className={`platform platform--${platformKind} ${positionClass} ${offset === 4 ? "platform--incoming" : ""} ${floor % 2 ? "is-mirrored" : ""}`}
+      className={`platform platform--${platformKind} ${positionClass} ${laneClass} ${offset === 4 ? "platform--incoming" : ""} ${floor % 2 ? "is-mirrored" : ""}`}
       style={style}
       data-platform-floor={floor}
       data-platform-offset={offset}
+      data-platform-lane={lane}
       aria-hidden="true"
     >
       <SheetCrop sheet={SPRITE_SHEETS.stairs} crop={SPRITES[platformKind]} className="platform-art" />
@@ -496,7 +502,11 @@ function PlayScreen({
 }) {
   const nextDirection = directionForFloor(floor + 1);
   const platforms = [-2, -1, 0, 1, 2, 3, 4]
-    .map((offset) => ({ floor: floor + offset, offset }))
+    .map((offset) => ({
+      floor: floor + offset,
+      offset,
+      lane: laneForPlatform(floor, floor + offset),
+    }))
     .filter((platform) => platform.floor >= 0);
   const comboLevel = comboLevelForStreak(floor);
   const isNewRecord = floor > recordTarget;
@@ -528,7 +538,12 @@ function PlayScreen({
       <ParticleField floor={floor} pulse={pulse} />
       <div className={`platform-field platform-field--pulse-${pulse % 2}`}>
         {platforms.map((platform) => (
-          <Platform floor={platform.floor} offset={platform.offset} key={platform.floor} />
+          <Platform
+            floor={platform.floor}
+            offset={platform.offset}
+            lane={platform.lane}
+            key={platform.floor}
+          />
         ))}
       </div>
       <div

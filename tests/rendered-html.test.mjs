@@ -29,8 +29,14 @@ test("all configured game artwork exists in public assets", async () => {
 });
 
 test("height regions blend continuously and resolve to one full background", async () => {
-  const { backgroundWeights, comboLevelForStreak, sceneryOpacity, stageForFloor } =
-    await importGameConfig();
+  const {
+    backgroundWeights,
+    comboLevelForStreak,
+    directionForFloor,
+    laneForPlatform,
+    sceneryOpacity,
+    stageForFloor,
+  } = await importGameConfig();
 
   for (const floor of [0, 79, 80, 100, 119, 120, 199, 200, 239, 240, 319, 320, 359, 360, 999]) {
     const weights = backgroundWeights(floor);
@@ -52,6 +58,18 @@ test("height regions blend continuously and resolve to one full background", asy
   assert.equal(comboLevelForStreak(5), 1);
   assert.equal(comboLevelForStreak(10), 2);
   assert.equal(comboLevelForStreak(20), 3);
+
+  for (let currentFloor = 2; currentFloor < 60; currentFloor += 1) {
+    const cameraShift = directionForFloor(currentFloor + 1);
+    assert.equal(laneForPlatform(currentFloor, currentFloor), 0);
+
+    for (let targetFloor = currentFloor - 1; targetFloor <= currentFloor + 4; targetFloor += 1) {
+      assert.equal(
+        laneForPlatform(currentFloor + 1, targetFloor),
+        laneForPlatform(currentFloor, targetFloor) - cameraShift,
+      );
+    }
+  }
 });
 
 test("responsive shell uses dynamic viewport and safe-area rules", async () => {
