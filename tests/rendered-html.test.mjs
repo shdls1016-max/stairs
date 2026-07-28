@@ -20,7 +20,7 @@ async function importGameConfig() {
 test("all configured game artwork exists in public assets", async () => {
   const { PRELOAD_ASSETS } = await importGameConfig();
 
-  assert.equal(PRELOAD_ASSETS.length, 15);
+  assert.equal(PRELOAD_ASSETS.length, 19);
   await Promise.all(
     PRELOAD_ASSETS.map((asset) =>
       access(new URL(`../public${asset}`, import.meta.url)),

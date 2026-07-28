@@ -1952,6 +1952,436 @@ img {
   }
 }
 
+/* Approved reusable UI artwork and final first-impression pass */
+body,
+button,
+input {
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    "Apple SD Gothic Neo",
+    "Malgun Gothic",
+    system-ui,
+    sans-serif;
+}
+
+.primary-button,
+.secondary-button {
+  isolation: isolate;
+  overflow: visible;
+  border: 0;
+  border-radius: 999px;
+  color: #fffefd;
+  background-color: transparent;
+  background-image: url("/assets/ui/ui-button-wide.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: none;
+  text-shadow: 0 2px 0 rgba(108, 91, 169, 0.38);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  filter: brightness(1.035);
+  box-shadow: none;
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: translateY(2px) scale(0.965);
+  box-shadow: none;
+}
+
+.play-button {
+  min-height: clamp(80px, 10.5vh, 98px);
+  border: 0;
+  background-color: transparent;
+  background-image: url("/assets/ui/ui-button-wide.png");
+  box-shadow: none;
+}
+
+.play-button::after {
+  content: none;
+}
+
+.play-symbol {
+  width: clamp(25px, 3vw, 34px);
+  margin-right: clamp(12px, 1.4vw, 18px);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.play-symbol::before {
+  width: clamp(19px, 2.2vw, 25px);
+  height: clamp(21px, 2.45vw, 28px);
+  margin-left: 2px;
+  border: 0;
+  border-radius: 5px;
+  background: #fffdf5;
+  clip-path: polygon(8% 2%, 96% 50%, 8% 98%);
+  filter: drop-shadow(0 2px 0 rgba(111, 91, 170, 0.35));
+}
+
+.play-label {
+  font-size: clamp(25px, 2.9vw, 36px);
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 0 rgba(108, 91, 169, 0.42);
+}
+
+.icon-button,
+.home-settings,
+.pause-control .icon-button {
+  overflow: visible;
+  border: 0;
+  border-radius: 50%;
+  color: #fffdf3;
+  background-color: transparent;
+  background-image: url("/assets/ui/ui-button-icon.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.icon-button:hover,
+.home-settings:hover,
+.pause-control .icon-button:hover {
+  background-color: transparent;
+  background-image: url("/assets/ui/ui-button-icon.png");
+  filter: brightness(1.035);
+}
+
+.icon-button > span {
+  display: grid;
+  place-items: center;
+  width: 58%;
+  height: 58%;
+  color: #fffdf3;
+  filter: drop-shadow(0 2px 0 rgba(76, 126, 162, 0.25));
+  font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
+  font-size: 0.82em;
+  line-height: 1;
+}
+
+.icon-button-art {
+  width: 43%;
+  height: 54%;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 0 rgba(80, 119, 158, 0.18));
+}
+
+.score-panel {
+  min-width: clamp(134px, 13vw, 176px);
+  min-height: clamp(58px, 5.5vw, 72px);
+  overflow: visible;
+  padding: 9px 17px 11px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--ui-ink);
+  background-color: transparent;
+  background-image: url("/assets/ui/ui-panel-record.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: none;
+  opacity: 0.96;
+  backdrop-filter: none;
+}
+
+.score-panel.is-near-record {
+  border: 0;
+  background-image: url("/assets/ui/ui-panel-record.png");
+  box-shadow: none;
+  filter: drop-shadow(0 0 8px rgba(255, 211, 95, 0.62));
+}
+
+.height-primary {
+  border-right-color: rgba(140, 121, 202, 0.15);
+}
+
+.height-primary strong {
+  color: #7866bf;
+}
+
+.best-secondary strong {
+  color: #8d7bd0;
+}
+
+.home-hero {
+  width: clamp(280px, 48vmin, 540px);
+  height: min(65vh, 610px);
+}
+
+.home-decorations {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-decor {
+  position: absolute;
+  opacity: 0.72;
+  filter: saturate(0.84) brightness(1.04) drop-shadow(0 7px 8px rgba(75, 106, 103, 0.09));
+  animation: home-decor-float 6.4s ease-in-out infinite alternate;
+}
+
+.home-decor--grass {
+  left: 14%;
+  bottom: 2.5%;
+  width: clamp(80px, 9vw, 142px);
+  transform-origin: 50% 100%;
+  animation-name: home-decor-sway;
+}
+
+.home-decor--flower {
+  right: 18%;
+  bottom: 5%;
+  width: clamp(48px, 5.2vw, 82px);
+  transform-origin: 50% 100%;
+  animation-name: home-decor-sway;
+  animation-delay: -2.8s;
+}
+
+.home-decor--rock {
+  left: 27%;
+  bottom: 3%;
+  width: clamp(64px, 7vw, 112px);
+  opacity: 0.58;
+  animation: none;
+}
+
+.home-decor--cloud {
+  top: 21%;
+  right: 11%;
+  width: clamp(86px, 10vw, 156px);
+  opacity: 0.42;
+  animation-duration: 10s;
+}
+
+.home-decor--branch {
+  right: -2%;
+  bottom: 22%;
+  width: clamp(112px, 13vw, 202px);
+  opacity: 0.42;
+  rotate: -8deg;
+}
+
+.home-decor--bird {
+  top: 31%;
+  left: 12%;
+  width: clamp(58px, 6vw, 96px);
+  opacity: 0.5;
+  animation-duration: 7.8s;
+}
+
+.home-decor--star {
+  top: 39%;
+  left: 28%;
+  width: clamp(20px, 2.4vw, 36px);
+  opacity: 0.62;
+  animation-delay: -1.4s;
+}
+
+.home-decor--sparkle {
+  top: 48%;
+  right: 27%;
+  width: clamp(13px, 1.5vw, 23px);
+  opacity: 0.68;
+  animation-duration: 4.2s;
+}
+
+@keyframes home-decor-float {
+  from { translate: 0 4px; }
+  to { translate: 0 -7px; }
+}
+
+@keyframes home-decor-sway {
+  from { rotate: -1.2deg; }
+  to { rotate: 1.2deg; }
+}
+
+.play-combo {
+  z-index: 10;
+  top: auto;
+  right: auto;
+  bottom: 51%;
+  left: 50%;
+  width: max-content;
+  transform: translateX(-50%);
+  animation: play-combo-pop 1120ms cubic-bezier(0.16, 0.84, 0.3, 1.18) forwards;
+}
+
+.play-combo span {
+  order: 0;
+  margin: 0 0 -2px;
+  color: #ffac67;
+  font-size: clamp(10px, 1vw, 14px);
+  letter-spacing: 0.1em;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.9);
+}
+
+.play-combo strong {
+  font-size: clamp(36px, 4.4vw, 58px);
+  line-height: 0.88;
+  background: linear-gradient(180deg, #fff5a8 0%, #ffd86b 54%, #ffad70 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.12vw, 2px) #fff8dc;
+  text-shadow: 0 3px 0 rgba(242, 161, 94, 0.46), 0 7px 11px rgba(119, 104, 132, 0.12);
+}
+
+.play-combo i {
+  position: absolute;
+  width: clamp(4px, 0.5vw, 7px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff2a2;
+  box-shadow: 0 0 7px rgba(255, 205, 91, 0.58);
+  opacity: 0;
+  animation: combo-spark-pop 760ms ease-out forwards;
+}
+
+.play-combo i:nth-of-type(1) {
+  top: 25%;
+  left: -14px;
+  animation-delay: 80ms;
+}
+
+.play-combo i:nth-of-type(2) {
+  top: -4px;
+  right: -12px;
+  animation-delay: 150ms;
+}
+
+.play-combo i:nth-of-type(3) {
+  right: -17px;
+  bottom: 0;
+  animation-delay: 230ms;
+}
+
+@keyframes play-combo-pop {
+  0% { transform: translate(-50%, 54px) scale(0.42) rotate(-3deg); opacity: 0; }
+  22% { transform: translate(-50%, 3px) scale(1.16) rotate(1deg); opacity: 1; }
+  39% { transform: translate(-50%, 0) scale(1) rotate(0); opacity: 1; }
+  74% { transform: translate(-50%, -7px) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -25px) scale(0.88); opacity: 0; }
+}
+
+.travel-sparkles {
+  top: 60%;
+}
+
+.travel-sparkles--left {
+  left: 67%;
+}
+
+.travel-sparkles--right {
+  left: 33%;
+}
+
+.travel-spark {
+  width: clamp(7px, 0.8vw, 12px);
+  color: transparent;
+  background: transparent;
+  box-shadow: none;
+  animation-duration: 680ms;
+}
+
+.travel-spark::before {
+  content: none;
+}
+
+.travel-spark > .sheet-crop {
+  width: 100%;
+  filter: drop-shadow(0 0 3px rgba(255, 221, 119, 0.62));
+}
+
+.travel-spark--1 {
+  width: clamp(6px, 0.68vw, 10px);
+}
+
+.travel-spark--2 {
+  width: clamp(5px, 0.58vw, 9px);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (max-width: 760px) {
+  .home-hero {
+    width: clamp(260px, 80vw, 390px);
+    height: min(61vh, 520px);
+  }
+
+  .home-decor--grass {
+    left: -2%;
+  }
+
+  .home-decor--flower {
+    right: 3%;
+  }
+
+  .home-decor--rock {
+    left: 12%;
+  }
+
+  .home-decor--branch {
+    right: -13%;
+    bottom: 24%;
+  }
+
+  .home-decor--bird {
+    top: 29%;
+    left: 3%;
+  }
+
+  .home-decor--cloud {
+    top: 23%;
+    right: -3%;
+  }
+
+  .home-decor--star {
+    left: 14%;
+  }
+
+  .home-decor--sparkle {
+    right: 12%;
+  }
+
+  .score-panel {
+    min-width: 126px;
+    min-height: 54px;
+    padding: 8px 14px 10px;
+  }
+
+  .play-combo {
+    bottom: 52%;
+  }
+}
+
+@media (max-height: 650px) {
+  .home-hero {
+    height: min(60vh, 420px);
+  }
+
+  .play-button {
+    min-height: 64px;
+  }
+
+  .home-decor--cloud,
+  .home-decor--branch {
+    opacity: 0.28;
+  }
+}
+
 /* Playful UI system
    All interface surfaces share these light, soft, toy-like tokens. */
 :root {

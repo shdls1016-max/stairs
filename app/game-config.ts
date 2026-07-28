@@ -20,12 +20,19 @@ export const ASSETS = {
     stairs: "/assets/environment/object-sheets/stair-platforms.png",
     particles: "/assets/environment/object-sheets/particles.png",
   },
+  ui: {
+    wideButton: "/assets/ui/ui-button-wide.png",
+    iconButton: "/assets/ui/ui-button-icon.png",
+    recordPanel: "/assets/ui/ui-panel-record.png",
+    pauseIcon: "/assets/ui/ui-icon-pause.png",
+  },
 } as const;
 
 export const PRELOAD_ASSETS = [
   ...Object.values(ASSETS.character),
   ...ASSETS.backgrounds,
   ...Object.values(ASSETS.sheets),
+  ...Object.values(ASSETS.ui),
 ];
 
 export type Direction = -1 | 1;

@@ -233,11 +233,13 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
 function IconButton({
   label,
   icon,
+  image,
   onClick,
   className = "",
 }: {
   label: string;
   icon: string;
+  image?: string;
   onClick: () => void;
   className?: string;
 }) {
@@ -251,7 +253,11 @@ function IconButton({
         onClick();
       }}
     >
-      <span aria-hidden="true">{icon}</span>
+      {image ? (
+        <img className="icon-button-art" src={image} alt="" aria-hidden="true" />
+      ) : (
+        <span aria-hidden="true">{icon}</span>
+      )}
     </button>
   );
 }
@@ -287,6 +293,16 @@ function HomeScreen({
         {Array.from({ length: 8 }, (_, index) => (
           <i className={`home-mote home-mote--${index + 1}`} key={index} />
         ))}
+      </div>
+      <div className="home-decorations" aria-hidden="true">
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.grass2} className="home-decor home-decor--grass" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.flower2} className="home-decor home-decor--flower" />
+        <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.rock2} className="home-decor home-decor--rock" />
+        <SheetCrop sheet={SPRITE_SHEETS.sky} crop={SPRITES.smallCloud1} className="home-decor home-decor--cloud" />
+        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.branch2} className="home-decor home-decor--branch" />
+        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird1} className="home-decor home-decor--bird" />
+        <SheetCrop sheet={SPRITE_SHEETS.particles} crop={SPRITES.starShard1} className="home-decor home-decor--star" />
+        <SheetCrop sheet={SPRITE_SHEETS.particles} crop={SPRITES.lightDiamond} className="home-decor home-decor--sparkle" />
       </div>
       <IconButton label="설정 열기" icon="⚙︎" onClick={onSettings} className="home-settings" />
       <div className="home-title">
@@ -342,7 +358,7 @@ function Hud({
         </div>
       </div>
       <div className="pause-control">
-        <IconButton label="일시정지" icon="Ⅱ" onClick={onPause} />
+        <IconButton label="일시정지" icon="" image={ASSETS.ui.pauseIcon} onClick={onPause} />
       </div>
       <div className="time-gauge" aria-label={`남은 시간 ${Math.round(time)}%`}>
         <span className={timeClass} style={{ width: `${time}%` }} />
@@ -429,20 +445,28 @@ function TravelSparkles({
       aria-hidden="true"
     >
       {Array.from({ length: particleCount }, (_, index) => {
+        const crop =
+          index % 3 === 0
+            ? SPRITES.starShard1
+            : index % 3 === 1
+              ? SPRITES.lightDiamond
+              : SPRITES.lightDot;
         return (
           <span
             className={`travel-spark travel-spark--${index % 3}`}
             key={`${pulse}-${index}`}
             style={
               {
-                "--spark-x": `${(facing < 0 ? 1 : -1) * (18 + index * 9)}px`,
-                "--spark-x-mid": `${(facing < 0 ? 1 : -1) * (8 + index * 4)}px`,
-                "--spark-y": `${-13 - index * 5}px`,
+                "--spark-x": `${(facing < 0 ? 1 : -1) * (30 + index * 15)}px`,
+                "--spark-x-mid": `${(facing < 0 ? 1 : -1) * (12 + index * 7)}px`,
+                "--spark-y": `${-18 - (index % 3) * 12}px`,
                 "--spark-delay": `${index * 22}ms`,
                 "--spark-rotate": `${-24 + index * 31}deg`,
               } as CSSProperties
             }
-          />
+          >
+            <SheetCrop sheet={SPRITE_SHEETS.particles} crop={crop} />
+          </span>
         );
       })}
     </div>
@@ -469,7 +493,7 @@ function PlayScreen({
   time: number;
   pulse: number;
   facing: Direction;
-  pose: "climb" | "turn";
+  pose: "idle" | "climb" | "turn";
   shaking: boolean;
   recordCelebration: boolean;
   effectsEnabled: boolean;
@@ -484,7 +508,9 @@ function PlayScreen({
   const isNewRecord = floor > recordTarget;
   const playerSource = recordCelebration
     ? ASSETS.character.record
-    : pose === "turn"
+    : pose === "idle"
+      ? ASSETS.character.idle
+      : pose === "turn"
       ? ASSETS.character.turn
       : ASSETS.character.climb;
 
@@ -524,23 +550,23 @@ function PlayScreen({
           alt="계단을 오르는 루미"
           draggable="false"
         />
-        {effectsEnabled && comboLevel > 0 && !recordCelebration ? (
-          <div
-            className={`combo-indicator combo-indicator--${comboLevel}`}
-            key={`combo-${floor}`}
-            aria-hidden="true"
-          >
-            <span>COMBO</span>
-            <strong>{floor.toLocaleString()}</strong>
-            <i />
-            <i />
-            <i />
-          </div>
-        ) : null}
         {effectsEnabled && floor > 0 && !recordCelebration ? (
           <TravelSparkles pulse={pulse} facing={facing} />
         ) : null}
       </div>
+      {effectsEnabled && comboLevel > 0 && !recordCelebration ? (
+        <div
+          className={`combo-indicator play-combo combo-indicator--${comboLevel}`}
+          key={`combo-${floor}`}
+          aria-hidden="true"
+        >
+          <span>COMBO</span>
+          <strong>{floor.toLocaleString()}</strong>
+          <i />
+          <i />
+          <i />
+        </div>
+      ) : null}
       <Hud
         floor={floor}
         best={best}
@@ -715,7 +741,7 @@ export function LumiClimbGame() {
   const [time, setTime] = useState(100);
   const [pulse, setPulse] = useState(0);
   const [facing, setFacing] = useState<Direction>(-1);
-  const [pose, setPose] = useState<"climb" | "turn">("climb");
+  const [pose, setPose] = useState<"idle" | "climb" | "turn">("idle");
   const [shaking, setShaking] = useState(false);
   const [recordCelebration, setRecordCelebration] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
@@ -822,7 +848,7 @@ export function LumiClimbGame() {
     setPulse((current) => current + 1);
     setFacing(-1);
     facingRef.current = -1;
-    setPose("climb");
+    setPose("idle");
     setRecordCelebration(false);
     recordCelebratedRef.current = false;
     lockedRef.current = false;
@@ -839,6 +865,7 @@ export function LumiClimbGame() {
       if (direction !== expected) {
         setFacing(direction);
         facingRef.current = direction;
+        setPose("turn");
         window.setTimeout(() => {
           lockedRef.current = false;
           finishRun();
