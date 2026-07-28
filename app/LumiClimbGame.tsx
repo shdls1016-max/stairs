@@ -16,7 +16,6 @@ import {
   comboLevelForStreak,
   directionForFloor,
   sceneryOpacity,
-  stageForFloor,
   type Direction,
 } from "./game-config";
 
@@ -325,47 +324,42 @@ function Hud({
   recordTarget,
   comboLevel,
   time,
-  stage,
   onPause,
-  onSettings,
 }: {
   floor: number;
   best: number;
   recordTarget: number;
   comboLevel: number;
   time: number;
-  stage: string;
   onPause: () => void;
-  onSettings: () => void;
 }) {
   const floorsToRecord = recordTarget - floor;
   const isNearRecord = recordTarget > 0 && floorsToRecord >= 0 && floorsToRecord <= 10;
+  const timeClass = time < 28 ? "is-low" : time < 58 ? "is-warm" : "";
 
   return (
     <header className="hud">
-      <div className="score-cluster">
-        <div className="score-readout score-readout--current">
-          <span>현재 높이</span>
-          <strong data-testid="height-value">{floor.toLocaleString()}층</strong>
+      <div className={`score-panel ${isNearRecord ? "is-near-record" : ""}`}>
+        <div className="height-primary">
+          <strong data-testid="height-value">{floor.toLocaleString()}</strong>
+          <span>층</span>
         </div>
-        <div className={`score-readout score-readout--best ${isNearRecord ? "is-near-record" : ""}`}>
-          <span>최고 기록</span>
-          <strong data-testid="best-value">{best.toLocaleString()}층</strong>
+        <div className="best-secondary">
+          <span>BEST</span>
+          <strong data-testid="best-value">{best.toLocaleString()}</strong>
         </div>
-        <div className="stage-label">{stage}</div>
       </div>
       {comboLevel > 0 ? (
         <div className={`combo-indicator combo-indicator--${comboLevel}`} key={comboLevel}>
-          <span>COMBO</span>
           <strong>{comboLevel}</strong>
+          <span>COMBO</span>
         </div>
       ) : null}
-      <div className="hud-actions">
-        <IconButton label="설정" icon="⚙" onClick={onSettings} />
+      <div className="pause-control">
         <IconButton label="일시정지" icon="Ⅱ" onClick={onPause} />
       </div>
       <div className="time-gauge" aria-label={`남은 시간 ${Math.round(time)}%`}>
-        <span className={time < 30 ? "is-low" : ""} style={{ width: `${time}%` }} />
+        <span className={timeClass} style={{ width: `${time}%` }} />
       </div>
     </header>
   );
@@ -373,12 +367,12 @@ function Hud({
 
 function Platform({
   floor,
-  index,
+  offset,
 }: {
   floor: number;
-  index: number;
+  offset: number;
 }) {
-  const direction = index === 0 ? 0 : directionForFloor(floor);
+  const direction = offset === 0 || floor === 0 ? 0 : directionForFloor(floor);
   const positionClass =
     direction === 0 ? "platform--center" : direction < 0 ? "platform--left" : "platform--right";
   const progressPick = Math.abs(Math.sin((floor + 9) * 18.734)) % 1;
@@ -390,15 +384,16 @@ function Platform({
   else if (floor >= 120) platformKind = "wood";
   else if (floor >= 80) platformKind = progressPick < (floor - 80) / 40 ? "wood" : "stone";
   const style = {
-    "--platform-bottom": `${14 + index * 12}%`,
-    "--platform-depth": `${1 - index * 0.055}`,
+    "--platform-bottom": `${28 + offset * 10}%`,
+    "--platform-depth": `${1 - Math.min(Math.abs(offset), 4) * 0.0125}`,
   } as CSSProperties;
 
   return (
     <div
-      className={`platform platform--${platformKind} ${positionClass} ${floor % 2 ? "is-mirrored" : ""}`}
+      className={`platform platform--${platformKind} ${positionClass} ${offset === 4 ? "platform--incoming" : ""} ${floor % 2 ? "is-mirrored" : ""}`}
       style={style}
       data-platform-floor={floor}
+      data-platform-offset={offset}
       aria-hidden="true"
     >
       <SheetCrop sheet={SPRITE_SHEETS.stairs} crop={SPRITES[platformKind]} className="platform-art" />
@@ -428,42 +423,36 @@ function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
   );
 }
 
-function LandingBurst({
-  comboLevel,
+function TravelSparkles({
   pulse,
+  facing,
 }: {
-  comboLevel: number;
   pulse: number;
+  facing: Direction;
 }) {
-  const particleCount = Math.min(10, 4 + comboLevel * 2);
+  const particleCount = 2 + (pulse % 3);
 
   return (
-    <div className="landing-burst" key={pulse} aria-hidden="true">
+    <div
+      className={`travel-sparkles travel-sparkles--${facing < 0 ? "left" : "right"}`}
+      key={pulse}
+      aria-hidden="true"
+    >
       {Array.from({ length: particleCount }, (_, index) => {
-        const isStar = comboLevel > 0 && index % 3 === 0;
-        const crop = isStar
-          ? index % 2
-            ? SPRITES.starShard1
-            : SPRITES.starShard2
-          : index % 2
-            ? SPRITES.lightDot
-            : SPRITES.lightDiamond;
-
         return (
           <span
-            className={`landing-particle ${isStar ? "is-star" : "is-light"}`}
+            className={`travel-spark travel-spark--${index % 3}`}
             key={`${pulse}-${index}`}
             style={
               {
-                "--burst-x": `${(index - (particleCount - 1) / 2) * 18}px`,
-                "--burst-y": `${-28 - (index % 3) * 13}px`,
-                "--burst-rotate": `${-55 + index * 21}deg`,
-                "--burst-delay": `${(index % 3) * 14}ms`,
+                "--spark-x": `${(facing < 0 ? 1 : -1) * (18 + index * 9)}px`,
+                "--spark-x-mid": `${(facing < 0 ? 1 : -1) * (8 + index * 4)}px`,
+                "--spark-y": `${-13 - index * 5}px`,
+                "--spark-delay": `${index * 22}ms`,
+                "--spark-rotate": `${-24 + index * 31}deg`,
               } as CSSProperties
             }
-          >
-            <SheetCrop sheet={SPRITE_SHEETS.particles} crop={crop} />
-          </span>
+          />
         );
       })}
     </div>
@@ -483,7 +472,6 @@ function PlayScreen({
   effectsEnabled,
   onInput,
   onPause,
-  onSettings,
 }: {
   floor: number;
   best: number;
@@ -497,10 +485,11 @@ function PlayScreen({
   effectsEnabled: boolean;
   onInput: (direction: Direction) => void;
   onPause: () => void;
-  onSettings: () => void;
 }) {
   const nextDirection = directionForFloor(floor + 1);
-  const platforms = Array.from({ length: 7 }, (_, index) => floor + index);
+  const platforms = [-2, -1, 0, 1, 2, 3, 4]
+    .map((offset) => ({ floor: floor + offset, offset }))
+    .filter((platform) => platform.floor >= 0);
   const comboLevel = comboLevelForStreak(floor);
   const isNewRecord = floor > recordTarget;
   const playerSource = recordCelebration
@@ -526,8 +515,8 @@ function PlayScreen({
       <WorldBackground floor={floor} pulse={pulse} />
       <ParticleField floor={floor} pulse={pulse} />
       <div className={`platform-field platform-field--pulse-${pulse % 2}`}>
-        {platforms.map((platformFloor, index) => (
-          <Platform floor={platformFloor} index={index} key={`${platformFloor}-${index}`} />
+        {platforms.map((platform) => (
+          <Platform floor={platform.floor} offset={platform.offset} key={platform.floor} />
         ))}
       </div>
       <div
@@ -545,17 +534,17 @@ function PlayScreen({
           alt="계단을 오르는 루미"
           draggable="false"
         />
+        {effectsEnabled && floor > 0 && !recordCelebration ? (
+          <TravelSparkles pulse={pulse} facing={facing} />
+        ) : null}
       </div>
-      {effectsEnabled && floor > 0 ? <LandingBurst comboLevel={comboLevel} pulse={pulse} /> : null}
       <Hud
         floor={floor}
         best={best}
         recordTarget={recordTarget}
         comboLevel={comboLevel}
         time={time}
-        stage={stageForFloor(floor).name}
         onPause={onPause}
-        onSettings={onSettings}
       />
       <div className="touch-guide touch-guide--left" aria-hidden="true">←</div>
       <div className="touch-guide touch-guide--right" aria-hidden="true">→</div>
@@ -590,10 +579,12 @@ function Overlay({
 
 function PauseScreen({
   onResume,
+  onSettings,
   onRetry,
   onHome,
 }: {
   onResume: () => void;
+  onSettings: () => void;
   onRetry: () => void;
   onHome: () => void;
 }) {
@@ -601,6 +592,7 @@ function PauseScreen({
     <Overlay eyebrow="잠시 쉬어가요" title="일시정지" className="pause-overlay">
       <div className="menu-buttons" data-testid="screen-paused">
         <button className="primary-button" type="button" onClick={onResume}>계속하기</button>
+        <button className="secondary-button" type="button" onClick={onSettings}>설정</button>
         <button className="secondary-button" type="button" onClick={onRetry}>다시 시작</button>
         <button className="text-button" type="button" onClick={onHome}>홈으로</button>
       </div>
@@ -948,11 +940,15 @@ export function LumiClimbGame() {
           effectsEnabled={settings.effects}
           onInput={handleInput}
           onPause={() => setScreen("paused")}
-          onSettings={() => openSettings("playing")}
         />
       ) : null}
       {screen === "paused" ? (
-        <PauseScreen onResume={() => setScreen("playing")} onRetry={startGame} onHome={() => setScreen("home")} />
+        <PauseScreen
+          onResume={() => setScreen("playing")}
+          onSettings={() => openSettings("paused")}
+          onRetry={startGame}
+          onHome={() => setScreen("home")}
+        />
       ) : null}
       {screen === "gameover" || screen === "record" ? (
         <ResultScreen
