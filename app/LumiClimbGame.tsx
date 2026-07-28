@@ -298,9 +298,11 @@ function HomeScreen({
       <IconButton label="설정 열기" icon="⚙︎" onClick={onSettings} className="home-settings" />
       <div className="home-title">
         <div className="game-logo" aria-label="STARBOUND STEPS">
-          <span className="logo-emblem" aria-hidden="true">★</span>
-          <span className="logo-topline">STARBOUND</span>
-          <strong>STEPS</strong>
+          <img
+            className="game-logo-image"
+            src="/assets/ui/logo-starbound-steps.png"
+            alt="STARBOUND STEPS"
+          />
         </div>
       </div>
       <div className="home-content">

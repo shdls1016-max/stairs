@@ -3872,3 +3872,18 @@ button,
     transform: translateX(-50%) rotate(0);
   }
 }
+
+/* Final logo artwork: preserve the source ratio at every viewport size. */
+.game-logo {
+  width: 100%;
+  min-height: 0;
+  filter: drop-shadow(0 7px 10px rgba(110, 99, 158, 0.14));
+}
+
+.game-logo-image {
+  display: block;
+  width: min(100%, 560px);
+  height: auto;
+  aspect-ratio: 2149 / 731;
+  object-fit: contain;
+}
