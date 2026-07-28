@@ -564,8 +564,8 @@ function PlayScreen({
         time={time}
         onPause={onPause}
       />
-      <div className="touch-guide touch-guide--left" aria-hidden="true">←</div>
-      <div className="touch-guide touch-guide--right" aria-hidden="true">→</div>
+      <div className="touch-guide touch-guide--left" aria-hidden="true"><span>←</span></div>
+      <div className="touch-guide touch-guide--right" aria-hidden="true"><span>→</span></div>
     </section>
   );
 }
