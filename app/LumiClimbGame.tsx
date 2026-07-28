@@ -273,17 +273,21 @@ function LoadingScreen({ progress }: { progress: number }) {
 }
 
 function HomeScreen({
-  best,
   onPlay,
   onSettings,
 }: {
-  best: number;
   onPlay: () => void;
   onSettings: () => void;
 }) {
   return (
     <section className="home-screen" data-testid="screen-home">
       <WorldBackground floor={0} pulse={0} />
+      <div className="home-ambience" aria-hidden="true">
+        <span className="home-depth-glow" />
+        {Array.from({ length: 8 }, (_, index) => (
+          <i className={`home-mote home-mote--${index + 1}`} key={index} />
+        ))}
+      </div>
       <IconButton label="설정 열기" icon="⚙︎" onClick={onSettings} className="home-settings" />
       <div className="home-title">
         <div className="game-logo" aria-label="STARBOUND STEPS">
@@ -298,20 +302,10 @@ function HomeScreen({
           <img src={ASSETS.character.idle} alt="별빛 여행자 루미" />
         </div>
         <div className="home-actions">
-          <div className="home-best">
-            <span className="best-star" aria-hidden="true">★</span>
-            <span className="best-copy">
-              <small>최고 높이</small>
-              <strong>{best.toLocaleString()}층</strong>
-            </span>
-          </div>
           <button className="primary-button play-button" type="button" onClick={onPlay}>
             <span className="play-symbol" aria-hidden="true" />
             <span className="play-label">PLAY</span>
           </button>
-          <p className="control-hint">
-            화면 좌우 터치 · 키보드 ← →
-          </p>
         </div>
       </div>
     </section>
@@ -322,14 +316,12 @@ function Hud({
   floor,
   best,
   recordTarget,
-  comboLevel,
   time,
   onPause,
 }: {
   floor: number;
   best: number;
   recordTarget: number;
-  comboLevel: number;
   time: number;
   onPause: () => void;
 }) {
@@ -349,12 +341,6 @@ function Hud({
           <strong data-testid="best-value">{best.toLocaleString()}</strong>
         </div>
       </div>
-      {comboLevel > 0 ? (
-        <div className={`combo-indicator combo-indicator--${comboLevel}`} key={comboLevel}>
-          <strong>{comboLevel}</strong>
-          <span>COMBO</span>
-        </div>
-      ) : null}
       <div className="pause-control">
         <IconButton label="일시정지" icon="Ⅱ" onClick={onPause} />
       </div>
@@ -384,8 +370,12 @@ function Platform({
   else if (floor >= 120) platformKind = "wood";
   else if (floor >= 80) platformKind = progressPick < (floor - 80) / 40 ? "wood" : "stone";
   const style = {
-    "--platform-bottom": `${28 + offset * 10}%`,
-    "--platform-depth": `${1 - Math.min(Math.abs(offset), 4) * 0.0125}`,
+    "--platform-bottom": `${28 + offset * 9.2}%`,
+    "--platform-depth": `${
+      offset < 0
+        ? 1 + Math.min(Math.abs(offset), 2) * 0.018
+        : 1 - Math.min(offset, 4) * 0.034
+    }`,
   } as CSSProperties;
 
   return (
@@ -534,6 +524,19 @@ function PlayScreen({
           alt="계단을 오르는 루미"
           draggable="false"
         />
+        {effectsEnabled && comboLevel > 0 && !recordCelebration ? (
+          <div
+            className={`combo-indicator combo-indicator--${comboLevel}`}
+            key={`combo-${floor}`}
+            aria-hidden="true"
+          >
+            <span>COMBO</span>
+            <strong>{floor.toLocaleString()}</strong>
+            <i />
+            <i />
+            <i />
+          </div>
+        ) : null}
         {effectsEnabled && floor > 0 && !recordCelebration ? (
           <TravelSparkles pulse={pulse} facing={facing} />
         ) : null}
@@ -542,7 +545,6 @@ function PlayScreen({
         floor={floor}
         best={best}
         recordTarget={recordTarget}
-        comboLevel={comboLevel}
         time={time}
         onPause={onPause}
       />
@@ -924,7 +926,7 @@ export function LumiClimbGame() {
     <main className={appClass} data-testid="game-root" data-screen={screen}>
       {screen === "loading" ? <LoadingScreen progress={progress} /> : null}
       {screen === "home" ? (
-        <HomeScreen best={best} onPlay={startGame} onSettings={() => openSettings("home")} />
+        <HomeScreen onPlay={startGame} onSettings={() => openSettings("home")} />
       ) : null}
       {["playing", "paused", "settings", "gameover", "record"].includes(screen) ? (
         <PlayScreen

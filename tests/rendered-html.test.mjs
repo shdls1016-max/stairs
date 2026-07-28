@@ -75,6 +75,10 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.doesNotMatch(component, /NEW RECORD|>Retry<|>Home</);
   assert.match(component, /aria-label="STARBOUND STEPS"/);
   assert.match(component, /className="play-label">PLAY</);
+  assert.doesNotMatch(component, /className="home-best"|className="control-hint"/);
+  assert.match(component, /className="home-ambience"/);
+  assert.match(component, /key={`combo-\$\{floor\}`}/);
+  assert.match(component, /<strong>{floor\.toLocaleString\(\)}<\/strong>/);
   assert.match(layout, /viewportFit:\s*"cover"/);
   assert.match(layout, /userScalable:\s*false/);
   assert.doesNotMatch(component, /<canvas|<svg/i);
@@ -87,6 +91,8 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(css, /--ui-mint:\s*#91dfc8/i);
   assert.match(css, /@keyframes panel-jelly-in/);
   assert.match(css, /\.primary-button:active/);
+  assert.match(css, /@keyframes player-combo-pop/);
+  assert.match(css, /@keyframes home-mote-drift/);
 });
 
 test("production worker renders the game document", async () => {
