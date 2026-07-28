@@ -487,7 +487,7 @@ function PlayScreen({
   time: number;
   pulse: number;
   facing: Direction;
-  pose: "idle" | "climb" | "turn" | "fail";
+  pose: "idle" | "climb" | "climb-still" | "turn" | "fail";
   shaking: boolean;
   recordCelebration: boolean;
   effectsEnabled: boolean;
@@ -741,7 +741,7 @@ export function LumiClimbGame() {
   const [time, setTime] = useState(100);
   const [pulse, setPulse] = useState(0);
   const [facing, setFacing] = useState<Direction>(-1);
-  const [pose, setPose] = useState<"idle" | "climb" | "turn" | "fail">("idle");
+  const [pose, setPose] = useState<"idle" | "climb" | "climb-still" | "turn" | "fail">("idle");
   const [shaking, setShaking] = useState(false);
   const [recordCelebration, setRecordCelebration] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
@@ -898,9 +898,10 @@ export function LumiClimbGame() {
         );
       }
 
-      if (!changedDirection) {
-        window.setTimeout(() => setPose("climb"), settings.reducedMotion ? 40 : 130);
-      }
+      window.setTimeout(
+        () => setPose(changedDirection ? "climb-still" : "climb"),
+        settings.reducedMotion ? 40 : 130,
+      );
       window.setTimeout(() => {
         lockedRef.current = false;
       }, settings.reducedMotion ? 70 : 190);

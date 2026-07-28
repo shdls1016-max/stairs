@@ -3699,6 +3699,10 @@ button,
   animation: turn-right 170ms ease-out;
 }
 
+.player--climb-still {
+  animation: none;
+}
+
 /* Make the bag sparkles travel farther in a widening, fading fan. */
 .travel-spark {
   animation-duration: 860ms;
