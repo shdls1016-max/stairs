@@ -83,6 +83,10 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(component, /recordCelebration/);
   assert.match(css, /travel-spark/);
   assert.match(css, /clamp\(/);
+  assert.match(css, /--ui-lavender:\s*#ad9bef/i);
+  assert.match(css, /--ui-mint:\s*#91dfc8/i);
+  assert.match(css, /@keyframes panel-jelly-in/);
+  assert.match(css, /\.primary-button:active/);
 });
 
 test("production worker renders the game document", async () => {
