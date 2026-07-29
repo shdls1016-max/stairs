@@ -30,7 +30,7 @@ type Screen =
   | "settings";
 
 type MusicTrack = "stair2" | "stair-game";
-type UiSound = "button" | "clear" | "gameOut";
+type UiSound = "button" | "clear" | "gameOut" | "jump";
 
 type Settings = {
   effects: boolean;
@@ -52,11 +52,13 @@ const UI_SOUNDS: Record<UiSound, string> = {
   button: "/assets/audio/button-click.mp3",
   clear: "/assets/audio/clear.mp3",
   gameOut: "/assets/audio/game-out2.mp3",
+  jump: "/assets/audio/jump2.mp3",
 };
 const UI_SOUND_VOLUMES: Record<UiSound, number> = {
   button: 0.55,
   clear: 0.7,
   gameOut: 0.65,
+  jump: 0.58,
 };
 
 const defaultSettings: Settings = {
@@ -136,6 +138,7 @@ const SPRITES = {
   particleLeaf3: { x: 770, y: 155, width: 220, height: 240 },
   lightDot: { x: 1104, y: 251, width: 81, height: 81 },
   lightDiamond: { x: 1324, y: 249, width: 84, height: 84 },
+  lightStar: { x: 1536, y: 249, width: 84, height: 84 },
   starShard1: { x: 326, y: 548, width: 126, height: 164 },
   starShard2: { x: 588, y: 548, width: 133, height: 163 },
 } satisfies Record<string, SpriteCrop>;
@@ -439,7 +442,7 @@ function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
   const particleCrops =
     type === "leaf"
       ? [SPRITES.particleLeaf1, SPRITES.particleLeaf2, SPRITES.particleLeaf3]
-      : [SPRITES.lightDot, SPRITES.lightDiamond];
+      : [SPRITES.lightDot, SPRITES.lightDiamond, SPRITES.lightStar];
 
   return (
     <div className={`particle-field particle-field--${type} particle-field--${pulse % 2}`} aria-hidden="true">
@@ -886,7 +889,6 @@ export function LumiClimbGame() {
   const bgmRef = useRef<HTMLAudioElement>(null);
   const bgmDuckedRef = useRef(false);
   const screenRef = useRef<Screen>("loading");
-  const audioContextRef = useRef<AudioContext | null>(null);
   const appliedMusicRestartRef = useRef(0);
   const uiSoundsRef = useRef<Partial<Record<UiSound, HTMLAudioElement>>>({});
 
@@ -953,31 +955,6 @@ export function LumiClimbGame() {
       // Storage is optional.
     }
   }, []);
-
-  const playStepSound = useCallback(
-    () => {
-      if (!settings.soundEffects || typeof window === "undefined" || !window.AudioContext) return;
-
-      const context = audioContextRef.current ?? new window.AudioContext();
-      audioContextRef.current = context;
-      if (context.state === "suspended") void context.resume();
-
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      const now = context.currentTime;
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(620, now);
-      oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.11);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.035, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(now);
-      oscillator.stop(now + 0.11);
-    },
-    [settings.soundEffects],
-  );
 
   const syncBgmVolume = useCallback(() => {
     const audio = bgmRef.current;
@@ -1184,7 +1161,7 @@ export function LumiClimbGame() {
         setBest(nextBest);
       }
       persistRecord(nextFloor, nextBest);
-      playStepSound();
+      playUiSound("jump");
       if (settings.haptics && navigator.vibrate) navigator.vibrate(10);
       if (nextFloor > runStartBestRef.current && !recordCelebratedRef.current) {
         recordCelebratedRef.current = true;
@@ -1217,7 +1194,7 @@ export function LumiClimbGame() {
       clearPoseTimers,
       finishRun,
       persistRecord,
-      playStepSound,
+      playUiSound,
       screen,
       settings.haptics,
       settings.reducedMotion,

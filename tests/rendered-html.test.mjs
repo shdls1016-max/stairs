@@ -31,8 +31,13 @@ test("all configured game artwork exists in public assets", async () => {
 test("result sound assets use the current failure cue", async () => {
   const component = await readFile(new URL("../app/LumiClimbGame.tsx", import.meta.url), "utf8");
 
-  await access(new URL("../public/assets/audio/game-out2.mp3", import.meta.url));
+  await Promise.all([
+    access(new URL("../public/assets/audio/game-out2.mp3", import.meta.url)),
+    access(new URL("../public/assets/audio/jump2.mp3", import.meta.url)),
+  ]);
   assert.match(component, /game-out2\.mp3/);
+  assert.match(component, /jump2\.mp3/);
+  assert.match(component, /playUiSound\("jump"\)/);
   assert.doesNotMatch(component, /game-out3\.mp3/);
 });
 
