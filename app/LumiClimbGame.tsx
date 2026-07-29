@@ -163,6 +163,7 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
   const opacity = sceneryOpacity(floor);
   const youngForest = clamp((floor - 55) / 75, 0, 1);
   const forestLife = clamp((floor - 175) / 90, 0, 1) * (1 - clamp((floor - 335) / 35, 0, 1));
+  const showForestBirdPass = floor >= 220 && floor < 320;
   const cloudCover = clamp((floor - 295) / 75, 0, 1);
   const worldStyle = {
     "--world-shift": `${-((floor % 10) * 1.7)}px`,
@@ -198,9 +199,13 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
       </div>
 
       <div className="scenery scenery--forest" style={{ opacity: opacity.forest }}>
+        {showForestBirdPass ? (
+          <div className="forest-bird-pass">
+            <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird1} className="scene-object forest-bird forest-bird--1" />
+            <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird2} className="scene-object forest-bird forest-bird--2" />
+          </div>
+        ) : null}
         <div className="forest-life-group" style={{ opacity: forestLife }}>
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird1} className="scene-object forest-bird forest-bird--1" />
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird2} className="scene-object forest-bird forest-bird--2" />
           <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.feather} className="scene-object forest-feather" />
         </div>
       </div>
