@@ -133,6 +133,9 @@ const SPRITES = {
   wood: { x: 49, y: 491, width: 481, height: 186 },
   branchStep: { x: 52, y: 798, width: 462, height: 173 },
   cloudStep: { x: 60, y: 1084, width: 465, height: 211 },
+  particleLeaf1: { x: 145, y: 155, width: 220, height: 245 },
+  particleLeaf2: { x: 455, y: 155, width: 220, height: 240 },
+  particleLeaf3: { x: 770, y: 155, width: 220, height: 240 },
   lightDot: { x: 1104, y: 251, width: 81, height: 81 },
   lightDiamond: { x: 1324, y: 249, width: 84, height: 84 },
   starShard1: { x: 326, y: 548, width: 126, height: 164 },
@@ -447,6 +450,11 @@ function Platform({
 
 function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
   const type = floor < 90 ? "leaf" : "light";
+  const particleCrops =
+    type === "leaf"
+      ? [SPRITES.particleLeaf1, SPRITES.particleLeaf2, SPRITES.particleLeaf3]
+      : [SPRITES.lightDot, SPRITES.lightDiamond];
+
   return (
     <div className={`particle-field particle-field--${type} particle-field--${pulse % 2}`} aria-hidden="true">
       {Array.from({ length: 6 }, (_, index) => (
@@ -458,10 +466,15 @@ function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
               "--particle-top": `${21 + (index % 3) * 23}%`,
               "--particle-duration": `${5 + index * 0.7}s`,
               "--particle-delay": `${index * -0.8}s`,
-              "--particle-x": `${(index % 3) * 20}%`,
             } as CSSProperties
           }
-        />
+        >
+          <SheetCrop
+            sheet={SPRITE_SHEETS.particles}
+            crop={particleCrops[index % particleCrops.length]}
+            className="ambient-particle-art"
+          />
+        </i>
       ))}
     </div>
   );
@@ -777,19 +790,10 @@ function SettingsScreen({
           className={`music-setting ${musicExpanded ? "is-expanded" : ""} ${settings.musicEnabled ? "is-enabled" : "is-disabled"}`}
         >
           <div className="music-setting-header">
-            <button
-              className="music-disclosure"
-              type="button"
-              aria-expanded={musicExpanded}
-              aria-controls="music-track-options"
-              onClick={() => setMusicExpanded((expanded) => !expanded)}
-            >
-              <span>
-                <strong>배경음악</strong>
-                <small>{settings.musicEnabled ? "화면에 맞춰 음량 자동 조절" : "꺼짐"}</small>
-              </span>
-              <b aria-hidden="true">⌄</b>
-            </button>
+            <span className="music-setting-copy">
+              <strong>배경음악</strong>
+              <small>{settings.musicEnabled ? "화면에 맞춰 음량 자동 조절" : "꺼짐"}</small>
+            </span>
             <label
               className="music-enable-toggle"
               aria-label={settings.musicEnabled ? "배경음악 끄기" : "배경음악 켜기"}
@@ -830,6 +834,16 @@ function SettingsScreen({
               </button>
             </div>
           ) : null}
+          <button
+            className="music-disclosure"
+            type="button"
+            aria-label={musicExpanded ? "배경음악 선택 접기" : "배경음악 선택 펼치기"}
+            aria-expanded={musicExpanded}
+            aria-controls="music-track-options"
+            onClick={() => setMusicExpanded((expanded) => !expanded)}
+          >
+            <b aria-hidden="true">⌄</b>
+          </button>
         </div>
         <Toggle
           label="효과 연출"

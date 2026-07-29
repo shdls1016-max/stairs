@@ -303,29 +303,37 @@ img {
 }
 
 .meadow-butterfly--1 {
-  top: 34%;
-  left: 14%;
-  animation: meadow-butterfly-wander-1 7.5s ease-in-out infinite;
+  top: 32%;
+  left: -8%;
+  animation: meadow-butterfly-flight-1 10.5s ease-in-out -1s infinite;
 }
 
 .meadow-butterfly--2 {
-  top: 58%;
-  right: 16%;
+  top: 61%;
+  right: -8%;
   width: clamp(22px, 2.7vw, 40px);
   transform: scaleX(-1);
-  animation: meadow-butterfly-wander-2 8.8s ease-in-out -3s infinite;
+  animation: meadow-butterfly-flight-2 12s ease-in-out -6s infinite;
 }
 
-@keyframes meadow-butterfly-wander-1 {
-  0%, 100% { transform: translate3d(-2vw, 7px, 0) rotate(-5deg); }
-  35% { transform: translate3d(8vw, -18px, 0) rotate(7deg); }
-  70% { transform: translate3d(15vw, 4px, 0) rotate(-2deg); }
+@keyframes meadow-butterfly-flight-1 {
+  0% { transform: translate3d(0, 9px, 0) rotate(-8deg); opacity: 0; }
+  8% { opacity: 0.9; }
+  20% { transform: translate3d(19vw, -10vh, 0) rotate(8deg); }
+  38% { transform: translate3d(39vw, 5vh, 0) rotate(-5deg); }
+  56% { transform: translate3d(61vw, -14vh, 0) rotate(10deg); }
+  74% { transform: translate3d(82vw, 2vh, 0) rotate(-7deg); opacity: 0.9; }
+  92%, 100% { transform: translate3d(116vw, -8vh, 0) rotate(6deg); opacity: 0; }
 }
 
-@keyframes meadow-butterfly-wander-2 {
-  0%, 100% { transform: translate3d(2vw, 5px, 0) scaleX(-1) rotate(4deg); }
-  42% { transform: translate3d(-9vw, -16px, 0) scaleX(-1) rotate(-6deg); }
-  76% { transform: translate3d(-16vw, 8px, 0) scaleX(-1) rotate(3deg); }
+@keyframes meadow-butterfly-flight-2 {
+  0% { transform: translate3d(0, 4px, 0) scaleX(-1) rotate(7deg); opacity: 0; }
+  9% { opacity: 0.84; }
+  24% { transform: translate3d(-22vw, -13vh, 0) scaleX(-1) rotate(-8deg); }
+  43% { transform: translate3d(-45vw, 3vh, 0) scaleX(-1) rotate(6deg); }
+  63% { transform: translate3d(-68vw, -10vh, 0) scaleX(-1) rotate(-9deg); }
+  82% { transform: translate3d(-91vw, 6vh, 0) scaleX(-1) rotate(5deg); opacity: 0.84; }
+  94%, 100% { transform: translate3d(-116vw, -4vh, 0) scaleX(-1) rotate(-6deg); opacity: 0; }
 }
 
 .meadow-dandelion-seed {
@@ -334,31 +342,33 @@ img {
 }
 
 .meadow-dandelion-seed--1 {
-  top: 24%;
-  left: -5%;
-  animation: meadow-seed-drift 8.5s linear -1s infinite;
+  top: -12%;
+  left: 12%;
+  animation: meadow-seed-fall 8.5s ease-in-out -1s infinite;
 }
 
 .meadow-dandelion-seed--2 {
-  top: 49%;
-  left: -8%;
+  top: -16%;
+  left: 46%;
   width: clamp(14px, 1.8vw, 28px);
-  animation: meadow-seed-drift 10.5s linear -6s infinite;
+  animation: meadow-seed-fall 10.5s ease-in-out -6s infinite;
 }
 
 .meadow-dandelion-seed--3 {
-  top: 69%;
-  left: -6%;
+  top: -10%;
+  left: 72%;
   width: clamp(12px, 1.5vw, 24px);
-  animation: meadow-seed-drift 12s linear -3.5s infinite;
+  animation: meadow-seed-fall 12s ease-in-out -3.5s infinite;
 }
 
-@keyframes meadow-seed-drift {
-  0% { transform: translate3d(0, 10px, 0) rotate(-12deg); opacity: 0; }
-  12% { opacity: 0.78; }
-  46% { transform: translate3d(48vw, -16px, 0) rotate(10deg); opacity: 0.72; }
-  82% { opacity: 0.6; }
-  100% { transform: translate3d(112vw, 8px, 0) rotate(25deg); opacity: 0; }
+@keyframes meadow-seed-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(-14deg); opacity: 0; }
+  10% { opacity: 0.78; }
+  24% { transform: translate3d(5vw, 22vh, 0) rotate(8deg); }
+  46% { transform: translate3d(1vw, 46vh, 0) rotate(-9deg); opacity: 0.72; }
+  68% { transform: translate3d(10vw, 67vh, 0) rotate(12deg); }
+  82% { opacity: 0.56; }
+  100% { transform: translate3d(16vw, 96vh, 0) rotate(24deg); opacity: 0; }
 }
 
 .sky-cloud {
@@ -1305,22 +1315,18 @@ img {
   left: var(--particle-left);
   top: var(--particle-top);
   width: clamp(16px, 2.5vw, 32px);
-  aspect-ratio: 1;
-  background-image: url("/assets/environment/object-sheets/particles.png");
-  background-repeat: no-repeat;
   opacity: 0.34;
   animation: particle-fall var(--particle-duration) linear infinite;
   animation-delay: var(--particle-delay);
 }
 
-.particle-field--leaf i {
-  background-size: 600% 200%;
-  background-position: var(--particle-x) 0;
+.ambient-particle-art {
+  width: 100%;
+  filter: saturate(0.84) brightness(1.05);
 }
 
 .particle-field--light i {
-  background-size: 600% 200%;
-  background-position: 60% 0;
+  width: clamp(8px, 1.2vw, 16px);
   opacity: 0.38;
 }
 
@@ -4042,7 +4048,7 @@ button,
   position: relative;
   display: block;
   min-height: 66px;
-  padding: 8px 10px 15px;
+  padding: 8px 10px 30px;
   border: 2px solid rgba(255, 255, 255, 0.82);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.46);
@@ -4057,31 +4063,33 @@ button,
   min-height: 44px;
 }
 
-.music-disclosure {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.music-setting-copy {
+  display: grid;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 44px;
-  padding: 0 4px 0 6px;
+  gap: 2px;
+  padding-left: 6px;
+}
+
+.music-disclosure {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
   border: 0;
   color: inherit;
-  text-align: left;
   background: transparent;
   cursor: pointer;
 }
 
-.music-disclosure > span {
-  display: grid;
-  gap: 2px;
-}
-
 .music-disclosure b {
-  position: absolute;
-  z-index: 2;
-  left: 50%;
-  bottom: 0;
+  display: block;
   width: 32px;
   height: 20px;
   color: #8c7bc5;
@@ -4091,12 +4099,12 @@ button,
   line-height: 0.58;
   text-align: center;
   pointer-events: none;
-  transform: translateX(-50%) rotate(0);
+  transform: rotate(0);
   transition: transform 160ms ease;
 }
 
 .music-setting.is-expanded .music-disclosure b {
-  transform: translateX(-50%) rotate(180deg);
+  transform: rotate(180deg);
 }
 
 .music-setting strong {
@@ -4349,7 +4357,7 @@ button,
 
   .music-setting {
     min-height: 54px;
-    padding: 4px 8px 13px;
+    padding: 4px 8px 27px;
   }
 
   .music-setting-header {
@@ -4357,7 +4365,8 @@ button,
   }
 
   .music-disclosure {
-    min-height: 38px;
+    height: 25px;
+    min-height: 25px;
   }
 
   .music-options button {
