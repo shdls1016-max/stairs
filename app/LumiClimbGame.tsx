@@ -52,7 +52,7 @@ const MUSIC_TRACKS: Record<MusicTrack, string> = {
 const UI_SOUNDS: Record<UiSound, string> = {
   button: "/assets/audio/button-click.mp3",
   clear: "/assets/audio/clear.mp3",
-  gameOut: "/assets/audio/game-out3.mp3",
+  gameOut: "/assets/audio/game-out2.mp3",
 };
 const UI_SOUND_VOLUMES: Record<UiSound, number> = {
   button: 0.55,
@@ -185,10 +185,10 @@ function preloadImages(onProgress: (value: number) => void) {
 function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
   const weights = backgroundWeights(floor);
   const opacity = sceneryOpacity(floor);
-  const youngForest = clamp((floor - 55) / 75, 0, 1);
-  const forestLife = clamp((floor - 175) / 90, 0, 1) * (1 - clamp((floor - 335) / 35, 0, 1));
-  const showForestBirdPass = floor >= 220 && floor < 320;
-  const cloudCover = clamp((floor - 295) / 75, 0, 1);
+  const youngForest = clamp((floor - 20) / 25, 0, 1);
+  const forestLife = clamp((floor - 45) / 20, 0, 1) * (1 - clamp((floor - 90) / 25, 0, 1));
+  const showForestBirdPass = floor >= 60 && floor < 90;
+  const cloudCover = clamp((floor - 95) / 25, 0, 1);
   const worldStyle = {
     "--world-shift": `${-((floor % 10) * 1.7)}px`,
     "--cloud-speed": `${clamp(34 - floor / 24, 18, 34)}s`,
@@ -394,12 +394,12 @@ function Platform({
     lane === 0 ? "platform--lane-0" : `platform--lane-${lane < 0 ? `m${Math.abs(lane)}` : `p${lane}`}`;
   const progressPick = Math.abs(Math.sin((floor + 9) * 18.734)) % 1;
   let platformKind: "stone" | "wood" | "branchStep" | "cloudStep" = "stone";
-  if (floor >= 360) platformKind = "cloudStep";
-  else if (floor >= 320) platformKind = progressPick < (floor - 320) / 40 ? "cloudStep" : "branchStep";
-  else if (floor >= 240) platformKind = "branchStep";
-  else if (floor >= 200) platformKind = progressPick < (floor - 200) / 40 ? "branchStep" : "wood";
-  else if (floor >= 120) platformKind = "wood";
-  else if (floor >= 80) platformKind = progressPick < (floor - 80) / 40 ? "wood" : "stone";
+  if (floor >= 120) platformKind = "cloudStep";
+  else if (floor >= 105) platformKind = progressPick < (floor - 105) / 15 ? "cloudStep" : "branchStep";
+  else if (floor >= 90) platformKind = "branchStep";
+  else if (floor >= 75) platformKind = progressPick < (floor - 75) / 15 ? "branchStep" : "wood";
+  else if (floor >= 60) platformKind = "wood";
+  else if (floor >= 45) platformKind = progressPick < (floor - 45) / 15 ? "wood" : "stone";
   const style = {
     "--platform-bottom": `${28 + offset * 9.2}%`,
     "--platform-depth": `${
@@ -424,7 +424,7 @@ function Platform({
 }
 
 function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
-  const type = floor >= 340 ? "light" : floor >= 120 ? "leaf" : "light";
+  const type = floor >= 30 && floor < 90 ? "leaf" : "light";
   return (
     <div className={`particle-field particle-field--${type} particle-field--${pulse % 2}`} aria-hidden="true">
       {Array.from({ length: 6 }, (_, index) => (
@@ -862,6 +862,8 @@ export function LumiClimbGame() {
   const recordCelebratedRef = useRef(false);
   const poseTimersRef = useRef<number[]>([]);
   const bgmRef = useRef<HTMLAudioElement>(null);
+  const bgmDuckedRef = useRef(false);
+  const screenRef = useRef<Screen>("loading");
   const audioContextRef = useRef<AudioContext | null>(null);
   const appliedMusicRestartRef = useRef(0);
   const uiSoundsRef = useRef<Partial<Record<UiSound, HTMLAudioElement>>>({});
@@ -904,6 +906,10 @@ export function LumiClimbGame() {
   useEffect(() => {
     floorRef.current = floor;
   }, [floor]);
+
+  useEffect(() => {
+    screenRef.current = screen;
+  }, [screen]);
 
   useEffect(() => {
     bestRef.current = best;
@@ -951,18 +957,38 @@ export function LumiClimbGame() {
     [settings.soundEffects],
   );
 
+  const syncBgmVolume = useCallback(() => {
+    const audio = bgmRef.current;
+    if (!audio) return;
+    const baseVolume = screenRef.current === "playing" ? 0.4 : 0.2;
+    audio.volume = baseVolume * (bgmDuckedRef.current ? 0.3 : 1);
+  }, []);
+
   const playUiSound = useCallback(
     (sound: UiSound) => {
       if (!settings.soundEffects) return;
       const audio = uiSoundsRef.current[sound];
       if (!audio) return;
+      const shouldDuckBgm = sound === "clear" || sound === "gameOut";
+      if (shouldDuckBgm) {
+        bgmDuckedRef.current = true;
+        syncBgmVolume();
+        audio.onended = () => {
+          bgmDuckedRef.current = false;
+          syncBgmVolume();
+        };
+      }
       audio.currentTime = 0;
       audio.volume = UI_SOUND_VOLUMES[sound];
       void audio.play().catch(() => {
+        if (shouldDuckBgm) {
+          bgmDuckedRef.current = false;
+          syncBgmVolume();
+        }
         // A later user interaction can retry sounds blocked by the browser.
       });
     },
-    [settings.soundEffects],
+    [settings.soundEffects, syncBgmVolume],
   );
 
   useEffect(() => {
@@ -1004,7 +1030,8 @@ export function LumiClimbGame() {
     const finalFloor = floorRef.current;
     const finalBest = Math.max(bestRef.current, finalFloor);
     const newRecord = finalFloor > runStartBestRef.current;
-    setPose(newRecord ? "idle" : "fail");
+    setRecordCelebration(false);
+    setPose("fail");
     if (!newRecord) playUiSound("gameOut");
     setBest(finalBest);
     bestRef.current = finalBest;
@@ -1028,7 +1055,7 @@ export function LumiClimbGame() {
   useEffect(() => {
     const audio = bgmRef.current;
     if (!audio) return;
-    audio.volume = screen === "playing" ? 0.4 : 0.2;
+    syncBgmVolume();
     if (!settings.musicEnabled || screen === "loading") {
       audio.pause();
       return;
@@ -1058,7 +1085,7 @@ export function LumiClimbGame() {
       window.removeEventListener("pointerdown", retryPlayback);
       window.removeEventListener("keydown", retryPlayback);
     };
-  }, [musicRestartToken, screen, settings.musicEnabled, settings.musicTrack]);
+  }, [musicRestartToken, screen, settings.musicEnabled, settings.musicTrack, syncBgmVolume]);
 
   useEffect(() => {
     if (screen !== "playing") return;
@@ -1092,13 +1119,15 @@ export function LumiClimbGame() {
     lockedRef.current = false;
     persistRecord(0, bestRef.current);
     if (settings.musicEnabled && bgmRef.current) {
-      bgmRef.current.volume = 0.4;
+      bgmDuckedRef.current = false;
+      screenRef.current = "playing";
+      syncBgmVolume();
       void bgmRef.current.play().catch(() => {
         // Playback will be retried by the screen effect after the user gesture.
       });
     }
     setScreen("playing");
-  }, [clearPoseTimers, persistRecord, settings.musicEnabled]);
+  }, [clearPoseTimers, persistRecord, settings.musicEnabled, syncBgmVolume]);
 
   const handleInput = useCallback(
     (direction: Direction) => {
