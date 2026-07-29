@@ -36,6 +36,7 @@ type Settings = {
   soundEffects: boolean;
   haptics: boolean;
   reducedMotion: boolean;
+  musicEnabled: boolean;
   musicTrack: MusicTrack;
 };
 
@@ -52,6 +53,7 @@ const defaultSettings: Settings = {
   soundEffects: true,
   haptics: true,
   reducedMotion: false,
+  musicEnabled: true,
   musicTrack: "stair2",
 };
 
@@ -719,15 +721,82 @@ function Toggle({
 function SettingsScreen({
   settings,
   onChange,
+  onSelectMusic,
   onBack,
 }: {
   settings: Settings;
   onChange: (settings: Settings) => void;
+  onSelectMusic: (musicTrack: MusicTrack) => void;
   onBack: () => void;
 }) {
+  const [musicExpanded, setMusicExpanded] = useState(settings.musicEnabled);
+
+  const setMusicEnabled = (musicEnabled: boolean) => {
+    onChange({ ...settings, musicEnabled });
+    setMusicExpanded(musicEnabled);
+  };
+
   return (
     <Overlay eyebrow="플레이 환경" title="설정" className="settings-overlay">
       <div className="settings-list" data-testid="screen-settings">
+        <div
+          className={`music-setting ${musicExpanded ? "is-expanded" : ""} ${settings.musicEnabled ? "is-enabled" : "is-disabled"}`}
+        >
+          <div className="music-setting-header">
+            <button
+              className="music-disclosure"
+              type="button"
+              aria-expanded={musicExpanded}
+              aria-controls="music-track-options"
+              onClick={() => setMusicExpanded((expanded) => !expanded)}
+            >
+              <span>
+                <strong>배경음악</strong>
+                <small>{settings.musicEnabled ? "화면에 맞춰 음량 자동 조절" : "꺼짐"}</small>
+              </span>
+              <b aria-hidden="true">⌄</b>
+            </button>
+            <label
+              className="music-enable-toggle"
+              aria-label={settings.musicEnabled ? "배경음악 끄기" : "배경음악 켜기"}
+            >
+              <input
+                type="checkbox"
+                checked={settings.musicEnabled}
+                onChange={(event) => setMusicEnabled(event.target.checked)}
+              />
+              <i aria-hidden="true" />
+            </label>
+          </div>
+          {musicExpanded ? (
+            <div
+              className="music-options"
+              id="music-track-options"
+              role="group"
+              aria-label="배경음악 선택"
+              aria-disabled={!settings.musicEnabled}
+            >
+              <button
+                type="button"
+                className={settings.musicTrack === "stair2" ? "is-selected" : ""}
+                aria-pressed={settings.musicTrack === "stair2"}
+                disabled={!settings.musicEnabled}
+                onClick={() => onSelectMusic("stair2")}
+              >
+                음악 1
+              </button>
+              <button
+                type="button"
+                className={settings.musicTrack === "stair-game" ? "is-selected" : ""}
+                aria-pressed={settings.musicTrack === "stair-game"}
+                disabled={!settings.musicEnabled}
+                onClick={() => onSelectMusic("stair-game")}
+              >
+                음악 2
+              </button>
+            </div>
+          ) : null}
+        </div>
         <Toggle
           label="효과 연출"
           description="흔들림과 착지 반동"
@@ -752,30 +821,6 @@ function SettingsScreen({
           checked={settings.reducedMotion}
           onChange={(reducedMotion) => onChange({ ...settings, reducedMotion })}
         />
-        <div className="music-setting">
-          <span>
-            <strong>배경음악</strong>
-            <small>플레이 중 반복 재생</small>
-          </span>
-          <div className="music-options" role="group" aria-label="배경음악 선택">
-            <button
-              type="button"
-              className={settings.musicTrack === "stair2" ? "is-selected" : ""}
-              aria-pressed={settings.musicTrack === "stair2"}
-              onClick={() => onChange({ ...settings, musicTrack: "stair2" })}
-            >
-              음악 1
-            </button>
-            <button
-              type="button"
-              className={settings.musicTrack === "stair-game" ? "is-selected" : ""}
-              aria-pressed={settings.musicTrack === "stair-game"}
-              onClick={() => onChange({ ...settings, musicTrack: "stair-game" })}
-            >
-              음악 2
-            </button>
-          </div>
-        </div>
         <button className="primary-button settings-back" type="button" onClick={onBack}>완료</button>
       </div>
     </Overlay>
@@ -796,6 +841,7 @@ export function LumiClimbGame() {
   const [shaking, setShaking] = useState(false);
   const [recordCelebration, setRecordCelebration] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
+  const [musicRestartToken, setMusicRestartToken] = useState(0);
   const lockedRef = useRef(false);
   const floorRef = useRef(0);
   const bestRef = useRef(0);
@@ -805,6 +851,7 @@ export function LumiClimbGame() {
   const poseTimersRef = useRef<number[]>([]);
   const bgmRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const appliedMusicRestartRef = useRef(0);
 
   const clearPoseTimers = useCallback(() => {
     poseTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -894,11 +941,11 @@ export function LumiClimbGame() {
   const finishRun = useCallback(() => {
     if (screen !== "playing") return;
     clearPoseTimers();
-    setPose("fail");
-    playSoundEffect("fail");
     const finalFloor = floorRef.current;
     const finalBest = Math.max(bestRef.current, finalFloor);
     const newRecord = finalFloor > runStartBestRef.current;
+    setPose(newRecord ? "idle" : "fail");
+    playSoundEffect("fail");
     setBest(finalBest);
     bestRef.current = finalBest;
     persistRecord(finalFloor, finalBest);
@@ -920,15 +967,37 @@ export function LumiClimbGame() {
   useEffect(() => {
     const audio = bgmRef.current;
     if (!audio) return;
-    audio.volume = 0.4;
-    if (screen === "playing") {
-      void audio.play().catch(() => {
-        // Some browsers require the first playback to happen inside a user gesture.
-      });
-    } else {
+    audio.volume = screen === "playing" ? 0.4 : 0.2;
+    if (!settings.musicEnabled || screen === "loading") {
       audio.pause();
+      return;
     }
-  }, [screen, settings.musicTrack]);
+
+    if (musicRestartToken !== appliedMusicRestartRef.current) {
+      audio.currentTime = 0;
+      appliedMusicRestartRef.current = musicRestartToken;
+    }
+
+    let active = true;
+    const retryPlayback = () => {
+      if (!active || !settings.musicEnabled) return;
+      void audio.play().catch(() => {
+        // The next pointer or keyboard interaction retries playback on restrictive browsers.
+      });
+    };
+
+    void audio.play().catch(() => {
+      if (!active) return;
+      window.addEventListener("pointerdown", retryPlayback, { once: true, passive: true });
+      window.addEventListener("keydown", retryPlayback, { once: true });
+    });
+
+    return () => {
+      active = false;
+      window.removeEventListener("pointerdown", retryPlayback);
+      window.removeEventListener("keydown", retryPlayback);
+    };
+  }, [musicRestartToken, screen, settings.musicEnabled, settings.musicTrack]);
 
   useEffect(() => {
     if (screen !== "playing") return;
@@ -961,14 +1030,14 @@ export function LumiClimbGame() {
     recordCelebratedRef.current = false;
     lockedRef.current = false;
     persistRecord(0, bestRef.current);
-    if (bgmRef.current) {
+    if (settings.musicEnabled && bgmRef.current) {
       bgmRef.current.volume = 0.4;
       void bgmRef.current.play().catch(() => {
         // Playback will be retried by the screen effect after the user gesture.
       });
     }
     setScreen("playing");
-  }, [clearPoseTimers, persistRecord]);
+  }, [clearPoseTimers, persistRecord, settings.musicEnabled]);
 
   const handleInput = useCallback(
     (direction: Direction) => {
@@ -980,7 +1049,7 @@ export function LumiClimbGame() {
       if (direction !== expected) {
         setFacing(direction);
         facingRef.current = direction;
-        setPose("fail");
+        setPose(floorRef.current > runStartBestRef.current ? "idle" : "fail");
         window.setTimeout(() => {
           lockedRef.current = false;
           finishRun();
@@ -988,9 +1057,10 @@ export function LumiClimbGame() {
         return;
       }
 
+      const changedDirection = direction !== facingRef.current;
       setFacing(direction);
       facingRef.current = direction;
-      setPose("turn");
+      setPose(changedDirection ? "turn" : "climb");
       const nextFloor = floorRef.current + 1;
       floorRef.current = nextFloor;
       setFloor(nextFloor);
@@ -1013,11 +1083,15 @@ export function LumiClimbGame() {
         );
       }
 
+      if (changedDirection) {
+        poseTimersRef.current.push(
+          window.setTimeout(
+            () => setPose("climb"),
+            settings.reducedMotion ? 20 : 55,
+          ),
+        );
+      }
       poseTimersRef.current.push(
-        window.setTimeout(
-          () => setPose("climb"),
-          settings.reducedMotion ? 30 : 120,
-        ),
         window.setTimeout(
           () => setPose("idle"),
           settings.reducedMotion ? 70 : 400,
@@ -1071,6 +1145,11 @@ export function LumiClimbGame() {
     }
   };
 
+  const selectMusic = (musicTrack: MusicTrack) => {
+    updateSettings({ ...settings, musicTrack });
+    setMusicRestartToken((token) => token + 1);
+  };
+
   const openSettings = (returnTo: Screen) => {
     setSettingsReturn(returnTo);
     setScreen("settings");
@@ -1081,13 +1160,19 @@ export function LumiClimbGame() {
     [settings.reducedMotion],
   );
 
+  const showHomeBackground =
+    screen === "home" || (screen === "settings" && settingsReturn === "home");
+  const showPlayBackground =
+    ["playing", "paused", "gameover", "record"].includes(screen) ||
+    (screen === "settings" && settingsReturn !== "home");
+
   return (
     <main className={appClass} data-testid="game-root" data-screen={screen}>
       {screen === "loading" ? <LoadingScreen progress={progress} /> : null}
-      {screen === "home" ? (
+      {showHomeBackground ? (
         <HomeScreen onPlay={startGame} onSettings={() => openSettings("home")} />
       ) : null}
-      {["playing", "paused", "settings", "gameover", "record"].includes(screen) ? (
+      {showPlayBackground ? (
         <PlayScreen
           floor={floor}
           best={best}
@@ -1124,6 +1209,7 @@ export function LumiClimbGame() {
         <SettingsScreen
           settings={settings}
           onChange={updateSettings}
+          onSelectMusic={selectMusic}
           onBack={() => setScreen(settingsReturn)}
         />
       ) : null}

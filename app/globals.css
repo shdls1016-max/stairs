@@ -3980,20 +3980,52 @@ button,
 
 /* Audio preferences share the existing soft settings-card language. */
 .music-setting {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  display: block;
   min-height: 66px;
-  padding: 10px 12px 10px 16px;
+  padding: 8px 10px;
   border: 2px solid rgba(255, 255, 255, 0.82);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.46);
+  transition: background 150ms ease;
 }
 
-.music-setting > span {
+.music-setting-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+}
+
+.music-disclosure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 4px 0 6px;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.music-disclosure > span {
   display: grid;
   gap: 2px;
+}
+
+.music-disclosure b {
+  color: #8c7bc5;
+  font-size: 21px;
+  line-height: 1;
+  transform: translateY(-2px) rotate(0);
+  transition: transform 160ms ease;
+}
+
+.music-setting.is-expanded .music-disclosure b {
+  transform: translateY(2px) rotate(180deg);
 }
 
 .music-setting strong {
@@ -4006,11 +4038,69 @@ button,
   font-size: 11px;
 }
 
+.music-enable-toggle {
+  position: relative;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.music-enable-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.music-enable-toggle i {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #dedbea;
+  box-shadow: inset 0 2px 4px rgba(79, 84, 112, 0.08);
+  transition: background 150ms ease;
+}
+
+.music-enable-toggle i::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  content: "";
+  background: #fff;
+  box-shadow: 0 3px 6px rgba(100, 104, 135, 0.18);
+  transition: transform 160ms cubic-bezier(0.2, 0.84, 0.3, 1.16);
+}
+
+.music-enable-toggle input:checked + i {
+  background: var(--ui-mint);
+}
+
+.music-enable-toggle input:checked + i::after {
+  transform: translateX(22px);
+}
+
 .music-options {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 6px;
-  width: min(46%, 178px);
+  width: 100%;
+  margin-top: 6px;
+  animation: music-options-open 170ms ease-out;
+}
+
+@keyframes music-options-open {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .music-options button {
@@ -4032,9 +4122,24 @@ button,
   transform: scale(1.03);
 }
 
+.music-options[aria-disabled="true"] {
+  opacity: 0.48;
+}
+
+.music-options button:disabled {
+  cursor: default;
+  transform: none;
+}
+
 .music-options button.is-selected {
   color: #4c5888;
   background: var(--ui-mint);
+}
+
+/* The turn sprite is only a brief bridge into the climb pose. */
+.player--turn.player--left,
+.player--turn.player--right {
+  animation-duration: 70ms;
 }
 
 /*
@@ -4161,7 +4266,7 @@ button,
   }
 
   .settings-list {
-    gap: 6px;
+    gap: 4px;
     margin-top: 8px;
   }
 
@@ -4169,6 +4274,22 @@ button,
   .music-setting {
     min-height: 50px;
     padding-block: 6px;
+  }
+
+  .music-setting.is-expanded {
+    min-height: 86px;
+  }
+
+  .music-setting-header {
+    min-height: 40px;
+  }
+
+  .music-disclosure {
+    min-height: 38px;
+  }
+
+  .music-options button {
+    min-height: 32px;
   }
 
   .settings-back {
