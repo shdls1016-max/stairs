@@ -20,7 +20,7 @@ async function importGameConfig() {
 test("all configured game artwork exists in public assets", async () => {
   const { PRELOAD_ASSETS } = await importGameConfig();
 
-  assert.equal(PRELOAD_ASSETS.length, 19);
+  assert.equal(PRELOAD_ASSETS.length, 20);
   await Promise.all(
     PRELOAD_ASSETS.map((asset) =>
       access(new URL(`../public${asset}`, import.meta.url)),
@@ -111,8 +111,9 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(component, /player-trails/);
   assert.match(component, /recordCelebration/);
   assert.match(component, /meadow-dandelion-seed/);
-  assert.match(component, /meadow-butterfly/);
+  assert.doesNotMatch(component, /meadow-butterfly/);
   assert.doesNotMatch(component, /SPRITES\.feather/);
+  assert.doesNotMatch(component, /lumi-climb-best-theme-30-test/);
   assert.match(css, /travel-spark/);
   assert.match(css, /clamp\(/);
   assert.match(css, /--ui-lavender:\s*#ad9bef/i);

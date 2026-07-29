@@ -289,51 +289,11 @@ img {
 }
 
 .meadow-small-life,
-.meadow-butterflies,
 .meadow-dandelion-seeds {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-}
-
-.meadow-butterfly {
-  width: clamp(28px, 3.2vw, 48px);
-  opacity: 0.9;
-}
-
-.meadow-butterfly--1 {
-  top: 32%;
-  left: -8%;
-  animation: meadow-butterfly-flight-1 10.5s ease-in-out -1s infinite;
-}
-
-.meadow-butterfly--2 {
-  top: 61%;
-  right: -8%;
-  width: clamp(22px, 2.7vw, 40px);
-  transform: scaleX(-1);
-  animation: meadow-butterfly-flight-2 12s ease-in-out -6s infinite;
-}
-
-@keyframes meadow-butterfly-flight-1 {
-  0% { transform: translate3d(0, 9px, 0) rotate(-8deg); opacity: 0; }
-  8% { opacity: 0.9; }
-  20% { transform: translate3d(19vw, -10vh, 0) rotate(8deg); }
-  38% { transform: translate3d(39vw, 5vh, 0) rotate(-5deg); }
-  56% { transform: translate3d(61vw, -14vh, 0) rotate(10deg); }
-  74% { transform: translate3d(82vw, 2vh, 0) rotate(-7deg); opacity: 0.9; }
-  92%, 100% { transform: translate3d(116vw, -8vh, 0) rotate(6deg); opacity: 0; }
-}
-
-@keyframes meadow-butterfly-flight-2 {
-  0% { transform: translate3d(0, 4px, 0) scaleX(-1) rotate(7deg); opacity: 0; }
-  9% { opacity: 0.84; }
-  24% { transform: translate3d(-22vw, -13vh, 0) scaleX(-1) rotate(-8deg); }
-  43% { transform: translate3d(-45vw, 3vh, 0) scaleX(-1) rotate(6deg); }
-  63% { transform: translate3d(-68vw, -10vh, 0) scaleX(-1) rotate(-9deg); }
-  82% { transform: translate3d(-91vw, 6vh, 0) scaleX(-1) rotate(5deg); opacity: 0.84; }
-  94%, 100% { transform: translate3d(-116vw, -4vh, 0) scaleX(-1) rotate(-6deg); opacity: 0; }
 }
 
 .meadow-dandelion-seed {
@@ -1326,8 +1286,15 @@ img {
 }
 
 .particle-field--light i {
-  width: clamp(8px, 1.2vw, 16px);
-  opacity: 0.38;
+  width: clamp(12px, 1.6vw, 22px);
+  opacity: 0.68;
+}
+
+.particle-field--light .ambient-particle-art {
+  filter:
+    saturate(1.08)
+    brightness(1.12)
+    drop-shadow(0 0 5px rgba(255, 231, 135, 0.82));
 }
 
 .travel-sparkles {
@@ -4048,7 +4015,7 @@ button,
   position: relative;
   display: block;
   min-height: 66px;
-  padding: 8px 10px 30px;
+  padding: 10px 10px 42px;
   border: 2px solid rgba(255, 255, 255, 0.82);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.46);
@@ -4079,8 +4046,8 @@ button,
   display: grid;
   place-items: center;
   width: 100%;
-  height: 28px;
-  min-height: 28px;
+  height: 38px;
+  min-height: 38px;
   padding: 0;
   border: 0;
   color: inherit;
@@ -4088,22 +4055,17 @@ button,
   cursor: pointer;
 }
 
-.music-disclosure b {
+.music-disclosure img {
   display: block;
-  width: 32px;
-  height: 20px;
-  color: #8c7bc5;
-  font-family: "Arial Rounded MT Bold", "Trebuchet MS", sans-serif;
-  font-size: 30px;
-  font-weight: 900;
-  line-height: 0.58;
-  text-align: center;
+  width: 58px;
+  height: auto;
+  object-fit: contain;
   pointer-events: none;
   transform: rotate(0);
   transition: transform 160ms ease;
 }
 
-.music-setting.is-expanded .music-disclosure b {
+.music-setting.is-expanded .music-disclosure img {
   transform: rotate(180deg);
 }
 
@@ -4357,7 +4319,7 @@ button,
 
   .music-setting {
     min-height: 54px;
-    padding: 4px 8px 27px;
+    padding: 6px 8px 35px;
   }
 
   .music-setting-header {
@@ -4365,8 +4327,8 @@ button,
   }
 
   .music-disclosure {
-    height: 25px;
-    min-height: 25px;
+    height: 31px;
+    min-height: 31px;
   }
 
   .music-options button {

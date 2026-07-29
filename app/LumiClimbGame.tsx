@@ -41,8 +41,7 @@ type Settings = {
   musicTrack: MusicTrack;
 };
 
-// Temporary QA key: starts the record at 0 without deleting the player's real best.
-const BEST_KEY = "lumi-climb-best-theme-30-test";
+const BEST_KEY = "lumi-climb-best";
 const CURRENT_KEY = "lumi-climb-current";
 const SETTINGS_KEY = "lumi-climb-settings";
 const MUSIC_TRACKS: Record<MusicTrack, string> = {
@@ -108,7 +107,6 @@ const SPRITES = {
   tree1: { x: 700, y: 618, width: 278, height: 216 },
   tree2: { x: 1087, y: 598, width: 202, height: 236 },
   dandelionSeed: { x: 330, y: 875, width: 170, height: 180 },
-  butterfly: { x: 963, y: 934, width: 132, height: 106 },
   trunk1: { x: 130, y: 64, width: 291, height: 531 },
   trunk2: { x: 570, y: 95, width: 330, height: 504 },
   branch1: { x: 44, y: 670, width: 212, height: 221 },
@@ -224,18 +222,6 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
         </div>
         {floor < 30 ? (
           <div className="meadow-small-life">
-            <div className="meadow-butterflies">
-              <SheetCrop
-                sheet={SPRITE_SHEETS.meadow}
-                crop={SPRITES.butterfly}
-                className="scene-object meadow-butterfly meadow-butterfly--1"
-              />
-              <SheetCrop
-                sheet={SPRITE_SHEETS.meadow}
-                crop={SPRITES.butterfly}
-                className="scene-object meadow-butterfly meadow-butterfly--2"
-              />
-            </div>
             <div className="meadow-dandelion-seeds">
               {Array.from({ length: 3 }, (_, index) => (
                 <SheetCrop
@@ -842,7 +828,7 @@ function SettingsScreen({
             aria-controls="music-track-options"
             onClick={() => setMusicExpanded((expanded) => !expanded)}
           >
-            <b aria-hidden="true">⌄</b>
+            <img src={ASSETS.ui.chevron} alt="" aria-hidden="true" draggable="false" />
           </button>
         </div>
         <Toggle

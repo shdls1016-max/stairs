@@ -25,6 +25,7 @@ export const ASSETS = {
     iconButton: "/assets/ui/ui-button-icon.png",
     recordPanel: "/assets/ui/ui-panel-record.png",
     pauseIcon: "/assets/ui/ui-icon-pause.png",
+    chevron: "/assets/ui/ui-chevron-down.png",
   },
 } as const;
 
