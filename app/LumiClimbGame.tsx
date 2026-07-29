@@ -107,6 +107,7 @@ const SPRITES = {
   shrub2: { x: 350, y: 657, width: 350, height: 165 },
   tree1: { x: 700, y: 618, width: 278, height: 216 },
   tree2: { x: 1087, y: 598, width: 202, height: 236 },
+  dandelionSeed: { x: 330, y: 875, width: 170, height: 180 },
   butterfly: { x: 963, y: 934, width: 132, height: 106 },
   trunk1: { x: 130, y: 64, width: 291, height: 531 },
   trunk2: { x: 570, y: 95, width: 330, height: 504 },
@@ -120,7 +121,6 @@ const SPRITES = {
   nest: { x: 768, y: 1011, width: 215, height: 156 },
   bird1: { x: 98, y: 1218, width: 255, height: 195 },
   bird2: { x: 350, y: 1230, width: 341, height: 191 },
-  feather: { x: 781, y: 1244, width: 149, height: 171 },
   cloud1: { x: 115, y: 99, width: 337, height: 216 },
   cloud2: { x: 557, y: 94, width: 381, height: 227 },
   cloud3: { x: 1042, y: 97, width: 381, height: 223 },
@@ -186,7 +186,6 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
   const weights = backgroundWeights(floor);
   const opacity = sceneryOpacity(floor);
   const youngForest = clamp((floor - 20) / 25, 0, 1);
-  const forestLife = clamp((floor - 45) / 20, 0, 1) * (1 - clamp((floor - 90) / 25, 0, 1));
   const showForestBirdPass = floor >= 60 && floor < 90;
   const cloudCover = clamp((floor - 95) / 25, 0, 1);
   const worldStyle = {
@@ -220,6 +219,32 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
           <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.tree2} className="scene-object young-tree young-tree--2" />
           <SheetCrop sheet={SPRITE_SHEETS.meadow} crop={SPRITES.tree1} className="scene-object young-tree young-tree--3" />
         </div>
+        {floor < 30 ? (
+          <div className="meadow-small-life">
+            <div className="meadow-butterflies">
+              <SheetCrop
+                sheet={SPRITE_SHEETS.meadow}
+                crop={SPRITES.butterfly}
+                className="scene-object meadow-butterfly meadow-butterfly--1"
+              />
+              <SheetCrop
+                sheet={SPRITE_SHEETS.meadow}
+                crop={SPRITES.butterfly}
+                className="scene-object meadow-butterfly meadow-butterfly--2"
+              />
+            </div>
+            <div className="meadow-dandelion-seeds">
+              {Array.from({ length: 3 }, (_, index) => (
+                <SheetCrop
+                  key={index}
+                  sheet={SPRITE_SHEETS.meadow}
+                  crop={SPRITES.dandelionSeed}
+                  className={`scene-object meadow-dandelion-seed meadow-dandelion-seed--${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="scenery scenery--forest" style={{ opacity: opacity.forest }}>
@@ -229,9 +254,6 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
             <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird2} className="scene-object forest-bird forest-bird--2" />
           </div>
         ) : null}
-        <div className="forest-life-group" style={{ opacity: forestLife }}>
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.feather} className="scene-object forest-feather" />
-        </div>
       </div>
 
       <div className="scenery scenery--sky" style={{ opacity: opacity.sky }}>
@@ -395,11 +417,11 @@ function Platform({
   const progressPick = Math.abs(Math.sin((floor + 9) * 18.734)) % 1;
   let platformKind: "stone" | "wood" | "branchStep" | "cloudStep" = "stone";
   if (floor >= 120) platformKind = "cloudStep";
-  else if (floor >= 105) platformKind = progressPick < (floor - 105) / 15 ? "cloudStep" : "branchStep";
-  else if (floor >= 90) platformKind = "branchStep";
-  else if (floor >= 75) platformKind = progressPick < (floor - 75) / 15 ? "branchStep" : "wood";
-  else if (floor >= 60) platformKind = "wood";
-  else if (floor >= 45) platformKind = progressPick < (floor - 45) / 15 ? "wood" : "stone";
+  else if (floor >= 105) platformKind = progressPick < (floor - 105) / 15 ? "cloudStep" : "wood";
+  else if (floor >= 90) platformKind = "wood";
+  else if (floor >= 75) platformKind = progressPick < (floor - 75) / 15 ? "wood" : "branchStep";
+  else if (floor >= 60) platformKind = "branchStep";
+  else if (floor >= 45) platformKind = progressPick < (floor - 45) / 15 ? "branchStep" : "stone";
   const style = {
     "--platform-bottom": `${28 + offset * 9.2}%`,
     "--platform-depth": `${
@@ -424,7 +446,7 @@ function Platform({
 }
 
 function ParticleField({ floor, pulse }: { floor: number; pulse: number }) {
-  const type = floor >= 30 && floor < 90 ? "leaf" : "light";
+  const type = floor < 90 ? "leaf" : "light";
   return (
     <div className={`particle-field particle-field--${type} particle-field--${pulse % 2}`} aria-hidden="true">
       {Array.from({ length: 6 }, (_, index) => (

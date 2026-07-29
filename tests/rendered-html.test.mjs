@@ -110,6 +110,9 @@ test("responsive shell uses dynamic viewport and safe-area rules", async () => {
   assert.match(component, /TravelSparkles/);
   assert.match(component, /player-trails/);
   assert.match(component, /recordCelebration/);
+  assert.match(component, /meadow-dandelion-seed/);
+  assert.match(component, /meadow-butterfly/);
+  assert.doesNotMatch(component, /SPRITES\.feather/);
   assert.match(css, /travel-spark/);
   assert.match(css, /clamp\(/);
   assert.match(css, /--ui-lavender:\s*#ad9bef/i);
