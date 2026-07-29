@@ -3887,3 +3887,46 @@ button,
   aspect-ratio: 2149 / 731;
   object-fit: contain;
 }
+
+/*
+ * Portrait mobile title layout only.
+ * Keep the desktop composition and every gameplay screen unchanged.
+ */
+@media (max-width: 760px) and (orientation: portrait) {
+  .home-screen .home-title {
+    top: calc(var(--safe-top) + clamp(76px, 9vh, 94px));
+    width: min(82vw, 420px);
+  }
+
+  .home-screen .home-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(12px, 2vh, 22px);
+    width: 100%;
+    padding:
+      calc(var(--safe-top) + clamp(210px, 27vh, 252px))
+      calc(var(--safe-right) + 16px)
+      calc(var(--safe-bottom) + 24px)
+      calc(var(--safe-left) + 16px);
+  }
+
+  .home-screen .home-hero {
+    flex: 1 1 0;
+    align-self: center;
+    width: min(82vw, 400px);
+    height: auto;
+    min-height: 230px;
+    max-height: 480px;
+  }
+
+  .home-screen .home-actions {
+    position: relative;
+    inset: auto;
+    flex: 0 0 auto;
+    align-self: center;
+    width: min(calc(100vw - var(--safe-left) - var(--safe-right) - 32px), 360px);
+    transform: none;
+  }
+}
