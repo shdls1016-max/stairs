@@ -3977,3 +3977,201 @@ button,
     transform: translateY(0.06em);
   }
 }
+
+/* Audio preferences share the existing soft settings-card language. */
+.music-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 66px;
+  padding: 10px 12px 10px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.music-setting > span {
+  display: grid;
+  gap: 2px;
+}
+
+.music-setting strong {
+  color: var(--ui-ink);
+  font-size: 15px;
+}
+
+.music-setting small {
+  color: var(--ui-ink-soft);
+  font-size: 11px;
+}
+
+.music-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  width: min(46%, 178px);
+}
+
+.music-options button {
+  min-height: 38px;
+  padding: 0 8px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  color: #7967b9;
+  background: #dedbea;
+  box-shadow: 0 3px 6px rgba(100, 104, 135, 0.12);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.music-options button:hover {
+  transform: scale(1.03);
+}
+
+.music-options button.is-selected {
+  color: #4c5888;
+  background: var(--ui-mint);
+}
+
+/*
+ * Keep the approved travel animation, but reduce the sideways throw by about 60%
+ * and soften its hop/lean so Lumi reads as stepping rather than being launched.
+ */
+@keyframes player-path-left {
+  0% {
+    transform: translateX(calc(-50% + clamp(18px, 2.4vw, 42px))) translateY(5px)
+      rotate(1.5deg) scale(0.985, 1.015);
+  }
+  46% {
+    transform: translateX(calc(-50% + clamp(6px, 0.9vw, 15px))) translateY(-8px)
+      rotate(-2deg) scale(1.01);
+  }
+  76% {
+    transform: translateX(-50%) translateY(1px) rotate(0.5deg) scale(1.03, 0.95);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes player-path-right {
+  0% {
+    transform: translateX(calc(-50% - clamp(18px, 2.4vw, 42px))) translateY(5px)
+      rotate(-1.5deg) scale(0.985, 1.015);
+  }
+  46% {
+    transform: translateX(calc(-50% - clamp(6px, 0.9vw, 15px))) translateY(-8px)
+      rotate(2deg) scale(1.01);
+  }
+  76% {
+    transform: translateX(-50%) translateY(1px) rotate(-0.5deg) scale(1.03, 0.95);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(0) scale(1);
+  }
+}
+
+@keyframes player-turn-path-left {
+  from {
+    transform: translateX(calc(-50% + clamp(14px, 1.8vw, 30px))) rotate(3.5deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(0);
+  }
+}
+
+@keyframes player-turn-path-right {
+  from {
+    transform: translateX(calc(-50% - clamp(14px, 1.8vw, 30px))) rotate(-3.5deg);
+  }
+  to {
+    transform: translateX(-50%) rotate(0);
+  }
+}
+
+/*
+ * The failed pose slips sideways in a restrained arc and continues below the
+ * current stair. Its long tail remains visible once through the blurred result layer.
+ */
+.player--fail.player--left {
+  animation: player-fall-left 1200ms cubic-bezier(0.28, 0.06, 0.72, 0.44) forwards;
+}
+
+.player--fail.player--right {
+  animation: player-fall-right 1200ms cubic-bezier(0.28, 0.06, 0.72, 0.44) forwards;
+}
+
+@keyframes player-fall-left {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) rotate(0);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(calc(-50% - 10px)) translateY(-8px) rotate(-5deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(calc(-50% - clamp(24px, 4vw, 64px))) translateY(12vh) rotate(-12deg);
+  }
+  88% {
+    opacity: 0.82;
+    transform: translateX(calc(-50% - clamp(50px, 7vw, 120px))) translateY(55vh) rotate(-20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(-50% - clamp(60px, 8vw, 145px))) translateY(76vh) rotate(-24deg);
+  }
+}
+
+@keyframes player-fall-right {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) rotate(0);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(calc(-50% + 10px)) translateY(-8px) rotate(5deg);
+  }
+  55% {
+    opacity: 1;
+    transform: translateX(calc(-50% + clamp(24px, 4vw, 64px))) translateY(12vh) rotate(12deg);
+  }
+  88% {
+    opacity: 0.82;
+    transform: translateX(calc(-50% + clamp(50px, 7vw, 120px))) translateY(55vh) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(-50% + clamp(60px, 8vw, 145px))) translateY(76vh) rotate(24deg);
+  }
+}
+
+@media (max-height: 700px) {
+  .settings-overlay .overlay-panel {
+    padding-block: 14px;
+  }
+
+  .settings-overlay .overlay-heading h2 {
+    font-size: clamp(28px, 6vh, 38px);
+  }
+
+  .settings-list {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .settings-list .setting-row,
+  .music-setting {
+    min-height: 50px;
+    padding-block: 6px;
+  }
+
+  .settings-back {
+    margin-top: 8px;
+  }
+}

@@ -29,20 +29,30 @@ type Screen =
   | "record"
   | "settings";
 
+type MusicTrack = "stair2" | "stair-game";
+
 type Settings = {
   effects: boolean;
+  soundEffects: boolean;
   haptics: boolean;
   reducedMotion: boolean;
+  musicTrack: MusicTrack;
 };
 
 const BEST_KEY = "lumi-climb-best";
 const CURRENT_KEY = "lumi-climb-current";
 const SETTINGS_KEY = "lumi-climb-settings";
+const MUSIC_TRACKS: Record<MusicTrack, string> = {
+  stair2: "/assets/audio/stair2.mp3",
+  "stair-game": "/assets/audio/stair-game.mp3",
+};
 
 const defaultSettings: Settings = {
   effects: true,
+  soundEffects: true,
   haptics: true,
   reducedMotion: false,
+  musicTrack: "stair2",
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -725,6 +735,12 @@ function SettingsScreen({
           onChange={(effects) => onChange({ ...settings, effects })}
         />
         <Toggle
+          label="효과음"
+          description="계단 이동과 실패 알림음"
+          checked={settings.soundEffects}
+          onChange={(soundEffects) => onChange({ ...settings, soundEffects })}
+        />
+        <Toggle
           label="진동 피드백"
           description="지원하는 모바일 기기"
           checked={settings.haptics}
@@ -736,6 +752,30 @@ function SettingsScreen({
           checked={settings.reducedMotion}
           onChange={(reducedMotion) => onChange({ ...settings, reducedMotion })}
         />
+        <div className="music-setting">
+          <span>
+            <strong>배경음악</strong>
+            <small>플레이 중 반복 재생</small>
+          </span>
+          <div className="music-options" role="group" aria-label="배경음악 선택">
+            <button
+              type="button"
+              className={settings.musicTrack === "stair2" ? "is-selected" : ""}
+              aria-pressed={settings.musicTrack === "stair2"}
+              onClick={() => onChange({ ...settings, musicTrack: "stair2" })}
+            >
+              음악 1
+            </button>
+            <button
+              type="button"
+              className={settings.musicTrack === "stair-game" ? "is-selected" : ""}
+              aria-pressed={settings.musicTrack === "stair-game"}
+              onClick={() => onChange({ ...settings, musicTrack: "stair-game" })}
+            >
+              음악 2
+            </button>
+          </div>
+        </div>
         <button className="primary-button settings-back" type="button" onClick={onBack}>완료</button>
       </div>
     </Overlay>
@@ -763,6 +803,8 @@ export function LumiClimbGame() {
   const facingRef = useRef<Direction>(-1);
   const recordCelebratedRef = useRef(false);
   const poseTimersRef = useRef<number[]>([]);
+  const bgmRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const clearPoseTimers = useCallback(() => {
     poseTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -824,8 +866,36 @@ export function LumiClimbGame() {
     }
   }, []);
 
+  const playSoundEffect = useCallback(
+    (kind: "step" | "fail") => {
+      if (!settings.soundEffects || typeof window === "undefined" || !window.AudioContext) return;
+
+      const context = audioContextRef.current ?? new window.AudioContext();
+      audioContextRef.current = context;
+      if (context.state === "suspended") void context.resume();
+
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const now = context.currentTime;
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(kind === "step" ? 620 : 290, now);
+      oscillator.frequency.exponentialRampToValueAtTime(kind === "step" ? 880 : 170, now + 0.11);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(kind === "step" ? 0.035 : 0.045, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + (kind === "step" ? 0.1 : 0.16));
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + (kind === "step" ? 0.11 : 0.17));
+    },
+    [settings.soundEffects],
+  );
+
   const finishRun = useCallback(() => {
     if (screen !== "playing") return;
+    clearPoseTimers();
+    setPose("fail");
+    playSoundEffect("fail");
     const finalFloor = floorRef.current;
     const finalBest = Math.max(bestRef.current, finalFloor);
     const newRecord = finalFloor > runStartBestRef.current;
@@ -838,7 +908,27 @@ export function LumiClimbGame() {
       setShaking(false);
       setScreen(newRecord ? "record" : "gameover");
     }, settings.reducedMotion ? 80 : 280);
-  }, [persistRecord, screen, settings.haptics, settings.reducedMotion]);
+  }, [
+    clearPoseTimers,
+    persistRecord,
+    playSoundEffect,
+    screen,
+    settings.haptics,
+    settings.reducedMotion,
+  ]);
+
+  useEffect(() => {
+    const audio = bgmRef.current;
+    if (!audio) return;
+    audio.volume = 0.4;
+    if (screen === "playing") {
+      void audio.play().catch(() => {
+        // Some browsers require the first playback to happen inside a user gesture.
+      });
+    } else {
+      audio.pause();
+    }
+  }, [screen, settings.musicTrack]);
 
   useEffect(() => {
     if (screen !== "playing") return;
@@ -871,6 +961,12 @@ export function LumiClimbGame() {
     recordCelebratedRef.current = false;
     lockedRef.current = false;
     persistRecord(0, bestRef.current);
+    if (bgmRef.current) {
+      bgmRef.current.volume = 0.4;
+      void bgmRef.current.play().catch(() => {
+        // Playback will be retried by the screen effect after the user gesture.
+      });
+    }
     setScreen("playing");
   }, [clearPoseTimers, persistRecord]);
 
@@ -906,6 +1002,7 @@ export function LumiClimbGame() {
         setBest(nextBest);
       }
       persistRecord(nextFloor, nextBest);
+      playSoundEffect("step");
       if (settings.haptics && navigator.vibrate) navigator.vibrate(10);
       if (nextFloor > runStartBestRef.current && !recordCelebratedRef.current) {
         recordCelebratedRef.current = true;
@@ -930,7 +1027,15 @@ export function LumiClimbGame() {
         lockedRef.current = false;
       }, settings.reducedMotion ? 70 : 190);
     },
-    [clearPoseTimers, finishRun, persistRecord, screen, settings.haptics, settings.reducedMotion],
+    [
+      clearPoseTimers,
+      finishRun,
+      persistRecord,
+      playSoundEffect,
+      screen,
+      settings.haptics,
+      settings.reducedMotion,
+    ],
   );
 
   useEffect(() => {
@@ -1022,6 +1127,13 @@ export function LumiClimbGame() {
           onBack={() => setScreen(settingsReturn)}
         />
       ) : null}
+      <audio
+        key={settings.musicTrack}
+        ref={bgmRef}
+        src={MUSIC_TRACKS[settings.musicTrack]}
+        loop
+        preload="auto"
+      />
     </main>
   );
 }
