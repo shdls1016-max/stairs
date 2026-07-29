@@ -41,7 +41,8 @@ type Settings = {
   musicTrack: MusicTrack;
 };
 
-const BEST_KEY = "lumi-climb-best";
+// Temporary QA key: starts the record at 0 without deleting the player's real best.
+const BEST_KEY = "lumi-climb-best-theme-30-test";
 const CURRENT_KEY = "lumi-climb-current";
 const SETTINGS_KEY = "lumi-climb-settings";
 const MUSIC_TRACKS: Record<MusicTrack, string> = {

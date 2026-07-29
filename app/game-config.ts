@@ -66,11 +66,10 @@ export function laneForPlatform(currentFloor: number, targetFloor: number) {
 }
 
 export function stageForFloor(floor: number) {
-  if (floor < 80) return { name: "초원", platformRow: 0 };
-  if (floor < 120) return { name: "숲의 입구", platformRow: 0 };
-  if (floor < 240) return { name: "깊은 숲", platformRow: 1 };
-  if (floor < 320) return { name: "높은 나무", platformRow: 2 };
-  if (floor < 360) return { name: "나무 꼭대기", platformRow: 2 };
+  if (floor < 30) return { name: "초원", platformRow: 0 };
+  if (floor < 60) return { name: "숲의 입구", platformRow: 0 };
+  if (floor < 90) return { name: "깊은 숲", platformRow: 1 };
+  if (floor < 120) return { name: "나무 꼭대기", platformRow: 2 };
   return { name: "낮은 하늘", platformRow: 3 };
 }
 
@@ -81,38 +80,26 @@ function mix(from: number, to: number, value: number) {
 
 export function backgroundWeights(floor: number) {
   const weights = [0, 0, 0, 0, 0];
+  const clampedFloor = Math.max(0, floor);
+  const currentTheme = Math.min(4, Math.floor(clampedFloor / 30));
 
-  if (floor < 80) {
-    weights[0] = 1;
-  } else if (floor < 120) {
-    const progress = mix(80, 120, floor);
-    weights[0] = 1 - progress;
-    weights[1] = progress;
-  } else if (floor < 200) {
-    const progress = mix(120, 200, floor);
-    weights[1] = 1 - progress;
-    weights[2] = progress;
-  } else if (floor < 240) {
-    weights[2] = 1;
-  } else if (floor < 320) {
-    const progress = mix(240, 320, floor);
-    weights[2] = 1 - progress;
-    weights[3] = progress;
-  } else if (floor < 360) {
-    const progress = mix(320, 360, floor);
-    weights[3] = 1 - progress;
-    weights[4] = progress;
-  } else {
+  if (currentTheme === 4) {
     weights[4] = 1;
+    return weights;
   }
 
+  const progress = mix(currentTheme * 30, (currentTheme + 1) * 30, clampedFloor);
+  weights[currentTheme] = 1 - progress;
+  weights[currentTheme + 1] = progress;
   return weights;
 }
 
 export function sceneryOpacity(floor: number) {
+  const weights = backgroundWeights(floor);
+
   return {
-    meadow: 1 - mix(70, 150, floor),
-    forest: mix(70, 135, floor) * (1 - mix(315, 365, floor)),
-    sky: mix(295, 365, floor),
+    meadow: weights[0] + weights[1] * 0.35,
+    forest: weights[1] * 0.65 + weights[2] + weights[3] * 0.7,
+    sky: weights[3] * 0.3 + weights[4],
   };
 }

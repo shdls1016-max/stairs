@@ -3982,18 +3982,20 @@ button,
 .music-setting {
   display: block;
   min-height: 66px;
+  padding: 0 0 5px;
+}
+
+.music-setting-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
   padding: 8px 10px;
   border: 2px solid rgba(255, 255, 255, 0.82);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.46);
   transition: background 150ms ease;
-}
-
-.music-setting-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 46px;
 }
 
 .music-disclosure {
@@ -4017,15 +4019,45 @@ button,
 }
 
 .music-disclosure b {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: -9px;
+  width: 38px;
+  height: 12px;
   color: #8c7bc5;
-  font-size: 21px;
+  font-size: 0;
   line-height: 1;
-  transform: translateY(-2px) rotate(0);
+  pointer-events: none;
+  transform: translateX(-50%) rotate(0);
   transition: transform 160ms ease;
 }
 
+.music-disclosure b::before,
+.music-disclosure b::after {
+  position: absolute;
+  top: 4px;
+  width: 20px;
+  height: 3px;
+  border-radius: 999px;
+  background: #8c7bc5;
+  content: "";
+}
+
+.music-disclosure b::before {
+  right: 50%;
+  transform: rotate(10deg);
+  transform-origin: right center;
+}
+
+.music-disclosure b::after {
+  left: 50%;
+  transform: rotate(-10deg);
+  transform-origin: left center;
+}
+
 .music-setting.is-expanded .music-disclosure b {
-  transform: translateY(2px) rotate(180deg);
+  transform: translateX(-50%) rotate(180deg);
 }
 
 .music-setting strong {
@@ -4088,7 +4120,7 @@ button,
   grid-template-columns: repeat(2, 1fr);
   gap: 6px;
   width: 100%;
-  margin-top: 6px;
+  margin-top: 10px;
   animation: music-options-open 170ms ease-out;
 }
 
@@ -4270,18 +4302,19 @@ button,
     margin-top: 8px;
   }
 
-  .settings-list .setting-row,
-  .music-setting {
+  .settings-list .setting-row {
     min-height: 50px;
     padding-block: 6px;
   }
 
-  .music-setting.is-expanded {
-    min-height: 86px;
+  .music-setting {
+    min-height: 54px;
+    padding-block: 0 5px;
   }
 
   .music-setting-header {
-    min-height: 40px;
+    min-height: 50px;
+    padding-block: 4px;
   }
 
   .music-disclosure {

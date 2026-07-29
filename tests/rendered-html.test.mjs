@@ -38,7 +38,7 @@ test("height regions blend continuously and resolve to one full background", asy
     stageForFloor,
   } = await importGameConfig();
 
-  for (const floor of [0, 79, 80, 100, 119, 120, 199, 200, 239, 240, 319, 320, 359, 360, 999]) {
+  for (const floor of [0, 15, 29, 30, 45, 59, 60, 75, 89, 90, 105, 119, 120, 999]) {
     const weights = backgroundWeights(floor);
     assert.equal(weights.length, 5);
     assert.ok(weights.every((weight) => weight >= 0 && weight <= 1));
@@ -49,11 +49,10 @@ test("height regions blend continuously and resolve to one full background", asy
   }
 
   assert.equal(stageForFloor(0).name, "초원");
-  assert.equal(stageForFloor(80).name, "숲의 입구");
-  assert.equal(stageForFloor(120).name, "깊은 숲");
-  assert.equal(stageForFloor(240).name, "높은 나무");
-  assert.equal(stageForFloor(320).name, "나무 꼭대기");
-  assert.equal(stageForFloor(360).name, "낮은 하늘");
+  assert.equal(stageForFloor(30).name, "숲의 입구");
+  assert.equal(stageForFloor(60).name, "깊은 숲");
+  assert.equal(stageForFloor(90).name, "나무 꼭대기");
+  assert.equal(stageForFloor(120).name, "낮은 하늘");
   assert.equal(comboLevelForStreak(4), 0);
   assert.equal(comboLevelForStreak(5), 1);
   assert.equal(comboLevelForStreak(10), 2);
