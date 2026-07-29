@@ -489,7 +489,7 @@ function PlayScreen({
   time: number;
   pulse: number;
   facing: Direction;
-  pose: "idle" | "climb" | "climb-still" | "turn" | "fail";
+  pose: "idle" | "climb" | "turn" | "fail";
   shaking: boolean;
   recordCelebration: boolean;
   effectsEnabled: boolean;
@@ -752,7 +752,7 @@ export function LumiClimbGame() {
   const [time, setTime] = useState(100);
   const [pulse, setPulse] = useState(0);
   const [facing, setFacing] = useState<Direction>(-1);
-  const [pose, setPose] = useState<"idle" | "climb" | "climb-still" | "turn" | "fail">("idle");
+  const [pose, setPose] = useState<"idle" | "climb" | "turn" | "fail">("idle");
   const [shaking, setShaking] = useState(false);
   const [recordCelebration, setRecordCelebration] = useState(false);
   const [settings, setSettings] = useState<Settings>(defaultSettings);
@@ -762,6 +762,12 @@ export function LumiClimbGame() {
   const runStartBestRef = useRef(0);
   const facingRef = useRef<Direction>(-1);
   const recordCelebratedRef = useRef(false);
+  const poseTimersRef = useRef<number[]>([]);
+
+  const clearPoseTimers = useCallback(() => {
+    poseTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    poseTimersRef.current = [];
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -851,6 +857,7 @@ export function LumiClimbGame() {
   }, [finishRun, screen]);
 
   const startGame = useCallback(() => {
+    clearPoseTimers();
     runStartBestRef.current = bestRef.current;
     setRecordTarget(bestRef.current);
     floorRef.current = 0;
@@ -865,11 +872,12 @@ export function LumiClimbGame() {
     lockedRef.current = false;
     persistRecord(0, bestRef.current);
     setScreen("playing");
-  }, [persistRecord]);
+  }, [clearPoseTimers, persistRecord]);
 
   const handleInput = useCallback(
     (direction: Direction) => {
       if (screen !== "playing" || lockedRef.current) return;
+      clearPoseTimers();
       lockedRef.current = true;
       const expected = directionForFloor(floorRef.current + 1);
 
@@ -884,10 +892,9 @@ export function LumiClimbGame() {
         return;
       }
 
-      const changedDirection = direction !== facingRef.current;
       setFacing(direction);
       facingRef.current = direction;
-      setPose(changedDirection ? "turn" : "climb");
+      setPose("turn");
       const nextFloor = floorRef.current + 1;
       floorRef.current = nextFloor;
       setFloor(nextFloor);
@@ -909,15 +916,21 @@ export function LumiClimbGame() {
         );
       }
 
-      window.setTimeout(
-        () => setPose(changedDirection ? "climb-still" : "climb"),
-        settings.reducedMotion ? 40 : 130,
+      poseTimersRef.current.push(
+        window.setTimeout(
+          () => setPose("climb"),
+          settings.reducedMotion ? 30 : 120,
+        ),
+        window.setTimeout(
+          () => setPose("idle"),
+          settings.reducedMotion ? 70 : 400,
+        ),
       );
       window.setTimeout(() => {
         lockedRef.current = false;
       }, settings.reducedMotion ? 70 : 190);
     },
-    [finishRun, persistRecord, screen, settings.haptics, settings.reducedMotion],
+    [clearPoseTimers, finishRun, persistRecord, screen, settings.haptics, settings.reducedMotion],
   );
 
   useEffect(() => {
