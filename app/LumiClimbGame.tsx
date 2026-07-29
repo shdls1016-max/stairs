@@ -30,6 +30,7 @@ type Screen =
   | "settings";
 
 type MusicTrack = "stair2" | "stair-game";
+type UiSound = "button" | "clear" | "gameOut";
 
 type Settings = {
   effects: boolean;
@@ -46,6 +47,16 @@ const SETTINGS_KEY = "lumi-climb-settings";
 const MUSIC_TRACKS: Record<MusicTrack, string> = {
   stair2: "/assets/audio/stair2.mp3",
   "stair-game": "/assets/audio/stair-game.mp3",
+};
+const UI_SOUNDS: Record<UiSound, string> = {
+  button: "/assets/audio/button-click.mp3",
+  clear: "/assets/audio/clear.mp3",
+  gameOut: "/assets/audio/game-out3.mp3",
+};
+const UI_SOUND_VOLUMES: Record<UiSound, number> = {
+  button: 0.55,
+  clear: 0.7,
+  gameOut: 0.65,
 };
 
 const defaultSettings: Settings = {
@@ -852,6 +863,7 @@ export function LumiClimbGame() {
   const bgmRef = useRef<HTMLAudioElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const appliedMusicRestartRef = useRef(0);
+  const uiSoundsRef = useRef<Partial<Record<UiSound, HTMLAudioElement>>>({});
 
   const clearPoseTimers = useCallback(() => {
     poseTimersRef.current.forEach((timer) => window.clearTimeout(timer));
@@ -913,8 +925,8 @@ export function LumiClimbGame() {
     }
   }, []);
 
-  const playSoundEffect = useCallback(
-    (kind: "step" | "fail") => {
+  const playStepSound = useCallback(
+    () => {
       if (!settings.soundEffects || typeof window === "undefined" || !window.AudioContext) return;
 
       const context = audioContextRef.current ?? new window.AudioContext();
@@ -925,18 +937,65 @@ export function LumiClimbGame() {
       const gain = context.createGain();
       const now = context.currentTime;
       oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(kind === "step" ? 620 : 290, now);
-      oscillator.frequency.exponentialRampToValueAtTime(kind === "step" ? 880 : 170, now + 0.11);
+      oscillator.frequency.setValueAtTime(620, now);
+      oscillator.frequency.exponentialRampToValueAtTime(880, now + 0.11);
       gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(kind === "step" ? 0.035 : 0.045, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + (kind === "step" ? 0.1 : 0.16));
+      gain.gain.exponentialRampToValueAtTime(0.035, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1);
       oscillator.connect(gain);
       gain.connect(context.destination);
       oscillator.start(now);
-      oscillator.stop(now + (kind === "step" ? 0.11 : 0.17));
+      oscillator.stop(now + 0.11);
     },
     [settings.soundEffects],
   );
+
+  const playUiSound = useCallback(
+    (sound: UiSound) => {
+      if (!settings.soundEffects) return;
+      const audio = uiSoundsRef.current[sound];
+      if (!audio) return;
+      audio.currentTime = 0;
+      audio.volume = UI_SOUND_VOLUMES[sound];
+      void audio.play().catch(() => {
+        // A later user interaction can retry sounds blocked by the browser.
+      });
+    },
+    [settings.soundEffects],
+  );
+
+  useEffect(() => {
+    const sounds = Object.entries(UI_SOUNDS).reduce<Partial<Record<UiSound, HTMLAudioElement>>>(
+      (loaded, [sound, source]) => {
+        const audio = new Audio(source);
+        audio.preload = "auto";
+        loaded[sound as UiSound] = audio;
+        return loaded;
+      },
+      {},
+    );
+    uiSoundsRef.current = sounds;
+
+    return () => {
+      Object.values(sounds).forEach((audio) => {
+        audio?.pause();
+      });
+      uiSoundsRef.current = {};
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleButtonClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const button = target.closest("button");
+      if (!(button instanceof HTMLButtonElement) || button.disabled) return;
+      playUiSound("button");
+    };
+
+    document.addEventListener("click", handleButtonClick, true);
+    return () => document.removeEventListener("click", handleButtonClick, true);
+  }, [playUiSound]);
 
   const finishRun = useCallback(() => {
     if (screen !== "playing") return;
@@ -945,7 +1004,7 @@ export function LumiClimbGame() {
     const finalBest = Math.max(bestRef.current, finalFloor);
     const newRecord = finalFloor > runStartBestRef.current;
     setPose(newRecord ? "idle" : "fail");
-    playSoundEffect("fail");
+    if (!newRecord) playUiSound("gameOut");
     setBest(finalBest);
     bestRef.current = finalBest;
     persistRecord(finalFloor, finalBest);
@@ -953,12 +1012,13 @@ export function LumiClimbGame() {
     if (settings.haptics && navigator.vibrate) navigator.vibrate(45);
     window.setTimeout(() => {
       setShaking(false);
+      if (newRecord) playUiSound("clear");
       setScreen(newRecord ? "record" : "gameover");
     }, settings.reducedMotion ? 80 : 280);
   }, [
     clearPoseTimers,
     persistRecord,
-    playSoundEffect,
+    playUiSound,
     screen,
     settings.haptics,
     settings.reducedMotion,
@@ -1072,7 +1132,7 @@ export function LumiClimbGame() {
         setBest(nextBest);
       }
       persistRecord(nextFloor, nextBest);
-      playSoundEffect("step");
+      playStepSound();
       if (settings.haptics && navigator.vibrate) navigator.vibrate(10);
       if (nextFloor > runStartBestRef.current && !recordCelebratedRef.current) {
         recordCelebratedRef.current = true;
@@ -1105,7 +1165,7 @@ export function LumiClimbGame() {
       clearPoseTimers,
       finishRun,
       persistRecord,
-      playSoundEffect,
+      playStepSound,
       screen,
       settings.haptics,
       settings.reducedMotion,
