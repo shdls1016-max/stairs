@@ -1281,20 +1281,37 @@ img {
 }
 
 .ambient-particle-art {
+  z-index: 1;
   width: 100%;
   filter: saturate(0.84) brightness(1.05);
 }
 
 .particle-field--light i {
-  width: clamp(12px, 1.6vw, 22px);
-  opacity: 0.68;
+  width: clamp(14px, 1.8vw, 24px);
+  opacity: 0.9;
+}
+
+.particle-field--light i::before {
+  position: absolute;
+  z-index: 0;
+  inset: -55%;
+  border-radius: 50%;
+  content: "";
+  background: radial-gradient(
+    circle,
+    rgba(255, 250, 204, 0.92) 0%,
+    rgba(255, 224, 122, 0.46) 36%,
+    rgba(255, 224, 122, 0) 72%
+  );
+  filter: blur(1px);
 }
 
 .particle-field--light .ambient-particle-art {
   filter:
-    saturate(1.08)
-    brightness(1.12)
-    drop-shadow(0 0 5px rgba(255, 231, 135, 0.82));
+    saturate(1.28)
+    brightness(1.42)
+    drop-shadow(0 0 3px rgba(255, 255, 235, 0.96))
+    drop-shadow(0 0 7px rgba(255, 219, 104, 0.9));
 }
 
 .travel-sparkles {

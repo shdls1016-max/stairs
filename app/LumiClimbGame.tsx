@@ -58,7 +58,7 @@ const UI_SOUND_VOLUMES: Record<UiSound, number> = {
   button: 0.55,
   clear: 0.7,
   gameOut: 0.65,
-  jump: 0.58,
+  jump: 0.29,
 };
 
 const defaultSettings: Settings = {
