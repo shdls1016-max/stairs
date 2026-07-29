@@ -1288,7 +1288,7 @@ img {
 
 .particle-field--light i {
   width: clamp(14px, 1.8vw, 24px);
-  opacity: 0.9;
+  opacity: 0.58;
 }
 
 .particle-field--light i::before {
@@ -1299,19 +1299,19 @@ img {
   content: "";
   background: radial-gradient(
     circle,
-    rgba(255, 250, 204, 0.92) 0%,
-    rgba(255, 224, 122, 0.46) 36%,
-    rgba(255, 224, 122, 0) 72%
+    rgba(255, 255, 255, 0.58) 0%,
+    rgba(255, 255, 255, 0.24) 38%,
+    rgba(255, 255, 255, 0) 72%
   );
-  filter: blur(1px);
+  filter: blur(1.5px);
 }
 
 .particle-field--light .ambient-particle-art {
+  mix-blend-mode: screen;
   filter:
-    saturate(1.28)
-    brightness(1.42)
-    drop-shadow(0 0 3px rgba(255, 255, 235, 0.96))
-    drop-shadow(0 0 7px rgba(255, 219, 104, 0.9));
+    grayscale(1)
+    brightness(1.55)
+    drop-shadow(0 0 3px rgba(255, 255, 255, 0.66));
 }
 
 .travel-sparkles {
