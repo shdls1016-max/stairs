@@ -162,7 +162,6 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
   const weights = backgroundWeights(floor);
   const opacity = sceneryOpacity(floor);
   const youngForest = clamp((floor - 55) / 75, 0, 1);
-  const highForest = clamp((floor - 155) / 95, 0, 1) * (1 - clamp((floor - 320) / 55, 0, 1));
   const forestLife = clamp((floor - 175) / 90, 0, 1) * (1 - clamp((floor - 335) / 35, 0, 1));
   const cloudCover = clamp((floor - 295) / 75, 0, 1);
   const worldStyle = {
@@ -199,16 +198,6 @@ function WorldBackground({ floor, pulse }: { floor: number; pulse: number }) {
       </div>
 
       <div className="scenery scenery--forest" style={{ opacity: opacity.forest }}>
-        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.trunk1} className="scene-object forest-trunk forest-trunk--1" />
-        <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.trunk2} className="scene-object forest-trunk forest-trunk--2" />
-        <div className="high-forest-group" style={{ opacity: highForest }}>
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.branch1} className="scene-object forest-branch forest-branch--1" />
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.branch3} className="scene-object forest-branch forest-branch--2" />
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.leaves1} className="scene-object forest-leaves forest-leaves--1" />
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.leaves2} className="scene-object forest-leaves forest-leaves--2" />
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.leaves3} className="scene-object forest-leaves forest-leaves--3" />
-          <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.nest} className="scene-object forest-nest" />
-        </div>
         <div className="forest-life-group" style={{ opacity: forestLife }}>
           <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird1} className="scene-object forest-bird forest-bird--1" />
           <SheetCrop sheet={SPRITE_SHEETS.forest} crop={SPRITES.bird2} className="scene-object forest-bird forest-bird--2" />
