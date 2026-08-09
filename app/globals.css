@@ -4027,6 +4027,24 @@ button,
   }
 }
 
+/*
+ * When the horizontal clearance between the score panel and centered timer
+ * falls to roughly 50px, stack both HUD elements on the viewport centerline.
+ */
+@media (max-width: 640px) {
+  .play-screen .hud > .score-panel,
+  .play-screen .hud > .score-panel.is-near-record {
+    position: absolute;
+    top: calc(var(--safe-top) + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .play-screen .time-gauge {
+    top: calc(var(--safe-top) + clamp(76px, 22vw, 89px));
+  }
+}
+
 /* Audio preferences share the existing soft settings-card language. */
 .music-setting {
   position: relative;
