@@ -4043,6 +4043,10 @@ button,
   .play-screen .time-gauge {
     top: calc(var(--safe-top) + clamp(76px, 22vw, 89px));
   }
+
+  .play-screen .pause-control {
+    margin-left: auto;
+  }
 }
 
 /* Audio preferences share the existing soft settings-card language. */
